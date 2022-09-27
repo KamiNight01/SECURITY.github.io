@@ -1,6 +1,46 @@
+ Linops: 10.50.40.254
+student
+
+
 GREY HOST:10.50.40.200
 password: 6HUtNMMk9Bq2ALW
 KamiNight@021
 
- Linops: 10.50.40.254
-student
+
+
+
+
+SCRAPING DATA 
+
+
+#!/usr/bin/python
+import lxml.html
+import requests
+
+page = requests.get('http://quotes.toscrape.com')
+tree = lxml.html.fromstring(page.content)
+
+authors = tree.xpath('//small[@class="author"]/text()')
+
+print ('Authors: ',authors)
+
+
+-------------------------------------------------------
+#!/usr/bin/python
+
+
+#### IMPORTS #####
+import lxml.html
+import requests
+
+
+####Grabs the Webpage ####### 
+page = requests.get('http://quotes.toscrape.com')
+tree = lxml.html.fromstring(page.content)
+
+ ####  OUTLINES THE TAG YOU WANT TO GRAB ####
+results = tree.xpath('//small[@class="author"]/text()')
+
+ #####PRINTS IT OUT  #####
+print ('Results: ',results)
+-----------------------------------------------------------------------------------------------------------------------
