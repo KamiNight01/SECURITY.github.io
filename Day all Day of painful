@@ -11,18 +11,58 @@ Vulnerability and Exploitation Research:
 
 PHISHING:
 phising - general phising sent to everyone
-
 spear phising --- targeting specific groups (i.e: dod members) 
 
-
-
 EXPLOIT RESEARCH 
-Open Sources:
-
+Open Sources:produced from publicly available information that is collected, exploited, 
+and disseminated in a timely manner to an appropriate audience for addressing a specific intelligence requirement
 
 Organization capabilities:
 
 
+Scanning and Reconnaissance:
+
+
+SCRAPING DATA 
+
+
+#!/usr/bin/python
+import lxml.html
+import requests
+
+page = requests.get('http://quotes.toscrape.com')
+tree = lxml.html.fromstring(page.content)
+
+authors = tree.xpath('//small[@class="author"]/text()')
+
+print ('Authors: ',authors)
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+Advanced Scanning Techniques
+
+HOST DISCOVERY
+Find hosts that are online
+
+HOST ENUMERATION
+Find ports for each host that is online
+20-25,80 
+
+HOST INTERROGATION
+Find what service is running on each open/available port
+banner grabbing through net cat 
+
+
+
+PING SWEEP
+for i in {1..254}; do (ping -c 1 192.168.1.$i | grep "bytes from" &); done
+
+ 
+NMAP SCANN
+nmap -Pn -T4 --min-rate 2324243245 10.50.37.95 -p22,80,8080,8888,2222,4444
+nmap -Pn -T4 --min-rate 2324243245 10.50.37.95 -p22,80 --script=http-enum.nse
+nmap -Pn -T4 --min-rate 2324243245 10.50.37.95 -p22,80 --script=banner.nse
 
 
 
