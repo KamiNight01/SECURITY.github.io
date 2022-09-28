@@ -1,0 +1,48 @@
+Donovian Web Exploitation (DWE)
+XX OCT 2023
+Start Time: 1300
+Duration: 4 hours
+
+Type of Operation: Cyber Intelligence, Surveillance and Reconnaissance (C-ISR)
+
+Objective: Maneuver through network, identify and gain access to Minstry of Industry web servers.
+
+Tools/Techniques: All connections will be established through SSH masquerades or web browser. Ports in use will be dependent on target location and are subject to change. Web exploitation techniques limited to cross-site scripting, command injection, file upload, and path transversal. Network scanning tools/technique usage is at the discretion of student.
+
+Scenario Credentials: FLAG = W3B3xpl01t5t@rt0F@ct1v1ty
+
+Prior Approvals: Development of SSH access on host: Donovian_MI_websvr. Upon identification of additional Minstry web sites, student is authorized browse to pages to collect intellegence to enable answering CTFd challenges.
+
+Scheme of Maneuver:
+>Jump Box
+-->T1:10.100.28.40
+
+Target Section:
+
+T1
+Hostname: Donovian_MI_websvr
+IP: 10.100.28.40
+OS: unknown
+Creds:unknown
+Last Known SSH Port: unknown
+PSP: Unknown
+Malware: Unknown
+Action: Conduct approved Web Exploitation techniques to collect intellegence.
+
+
+
+
+ssh student@10.50.40.200 -X -D 9050
+
+proxychains nmap -Pn -T4 10.100.28.40 2>/dev/nul
+
+Nmap scan report for 10.100.28.40
+Host is up (0.0024s latency).
+Not shown: 998 closed ports
+PORT     STATE SERVICE
+80/tcp   open  http  (http)
+4444/tcp open  krb524  (SSH)
+
+
+To access the Web server 
+ssh student@10.50.40.200 -L 13030:10.100.28.40:80 -NT
