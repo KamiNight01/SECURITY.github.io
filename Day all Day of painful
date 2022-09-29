@@ -383,6 +383,53 @@ FROM movies
     ON movies.id = boxoffice.movie_id;
  
  
- ----------------------------------------------------------
+ -------------------------------------------------------------------------------------------------------------------
+ SQL Injection - Considerations
+ 
+Requires Valid SQL Queries
+Fully patched systems can be vulnerable due to misconfiguration
+Input Field Sanitization
+String vs Integer Values
+Is INFORMATION_SCHEMA Database available?
+GET Request versus POST Request HTTP methods  ( To check do f12 then go check on the network field ) 
+
+
+Unsanitized vs Sanitized Fields
+Unsanitized: input fields can be found using a Single Quote ⇒ '
+Will return extraneous information
+' closes a variable, to allow for additional statements/clauses
+May show no errors or generic error (harder Injection)
+Sanitized: input fields are checked for items that might harm the database (Items are removed, escaped, or turned into a single string)
+Validation: checks inputs to ensure it meets a criteria (String doesn’t contain ')
+
+
+Server-Side Query Processing
+User enters JOHNDOE243 in the name form field and PASS1234$ in the pass form field.
+The Server-Side Query that would be passed to MySQL from PHP would be:
+BEFORE INPUT:
+SELECT id FROM users WHERE name=‘$name’ AND pass=‘$pass’;
+AFTER INPUT:
+SELECT id FROM users WHERE name=‘JohnDoe243’ AND pass=‘pass1234’;
+
+
+Example - Injecting Your Statement
+User enters TOM' OR 1='1 in the name and pass fields.
+Truth Statement: tom ' OR 1='1
+Server-Side query executed would appear like this:
+SELECT id FROM users WHERE name=‘tom' OR 1='1’ AND pass=‘tom' OR 1='1’
+
+{
+WHERE name=‘tom' OR 1='1’ AND pass=‘tom' OR 1='1’
+WHERE name=‘tom' OR '1'='1’ AND pass=‘tom' OR 1='1’
+WHERE name=‘tom' OR 1=1’ AND pass=‘tom' OR 1='1’
+}
+
+
+
+
+
+user' or '1=1 ( with prompt ) 
+
+username=user&passwd=user%27+or+%271%3D1 ( with web search bar)
 
 
