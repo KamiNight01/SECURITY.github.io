@@ -376,11 +376,11 @@ Find the domestic and international sales for each movie ✓
 Show the sales numbers for each movie that did better internationally rather than domestically
 List all the movies by their ratings in descending order
 
-select title domestic_sales, international_sales
+
+ SELECT title domestic_sales international_sales 
 FROM movies
-JOIN boxoffice
- on movie_id = boxoffice.movie_id; 
- 
+  JOIN boxoffice
+    ON movies.id = boxoffice.movie_id;
  
  
  ----------------------------------------------------------
