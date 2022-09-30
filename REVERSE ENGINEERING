@@ -173,5 +173,30 @@ Apply Patch and Save
 Execute Patched Binary
 
 
+----------------------------------------------------------------------------------------------------------------------
+HOW TO USE IDA  FREEWARE 
+ open with ida 
+
+view 
+  subviews
+      strings 
+      
+( in ida if theres an variable ( ebp + var_4 ) it's probably a user input.)
+
+
+
+HOW TO USE GHIDRA
+search 
+ for strings 
+
+
+
+
+
+ user','a','b',1);#
+
+
+
+
 
 
