@@ -214,3 +214,80 @@ Selection=2 UNION select table_schema,table_name,Column_name,4,5,6 from informat
 http://10.50.42.112/uniondemo.php?Selection=2 UNION select id,pass,name from session.user
 
 
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+SSH MULTIPLEXING :
+
+First thing: 
+ go to .ssh direcotry 
+  if not there   make a new dir  
+   mkdir .ssh         --- cd .ssh
+   
+    mdkir CM   ( control master ) 
+ set up a master box ( most likely your gray host / redirector )  you can use 
+ 
+  ssh -M -S ~/.sshCM/gray student@10.50.40.200   ( grey host user and ip ) 
+  ssh -M -S ~/.ssh/CM/gray -o "ControlPersist=10m" student@10.50.40.200
+   control persist keeps the connection alive for 10 mins even when you are not connected  ( you can close if you'd like 
+   
+
+ $ ssh -S ~/.ssh/CM/gray grayhost 
+  to connect to tie greyhost ( you dont need to authenticate as long as you have that master connection) 
+    
+  
+  ssh -O forward -L1111:10.100.28.48:80 -S ~/.ssh/CM/gray NLA 
+  ( creates a port forward on port 1111  so you can firefox and connect to the website on  0.0.0.0:1111) 
+  ssh -O forward -L2222:10.100.28.40:80 -S ~/.ssh/CM/gray NLA
+  ( creates a port forward on port 1111  so you can firefox and connect to the website on  0.0.0.0:2222) 
+  
+
+ssh -O cancel -L2222:10.100.28.40:80 -S ~/.ssh/CM/gray NLA
+( to cancel the port forwards) 
+ssh -O cancel -L1111:10.100.28.48:80 -S ~/.ssh/CM/gray NLA
+
+To gracefully shut down the gray Master 
+ssh -O cancel -L2222:10.100.28.40:80 -S ~/.ssh/CM/gray  NLA
+
+to basically "pull the plug"
+ssh -O exit -S ~/.ssh/CM/gray user NLA
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+( TOTAL SETUP)
+
+
+  ssh -M -S ~/.ssh/CM/gray -o "ControlPersist=10m" student@10.50.40.200 ( intial master to  gray ) 
+  
+  ssh -O forward -L2222:192.168.28.111:2222 -S ~/.ssh/CM/gray place   ( forward tunnel to 111 via the master socket gray) 
+    
+    
+  ssh -M -S ~/.ssh/CM/T1 -o "ControlPresist=10m" comrade@127.0.0.1 -p2222   ( connect to the port so you can set up a persist ) 
+  ( should have a new master called T1 on your host )
+  
+  ssh -O forward -L3333:192.168.28.120:4242 -S ~/.ssh/CM/T1 place  ( forwad with the new master T1 ) 
+  
+  ssh -M -S ~/.ssh/CM/T2  -o "ControlPersist=10m" student@127.0.0.1 -p3333
+  
+  
+   to scp -- 
+  scp -o "ControlPath=~/.ssh/CM/gray" placeholder:/home/student/func .
+  
+  - to proxychain nmap 
+   ssh -S ~/.ssh/CM/gray placeholder -D 9050 
+  proxychains nmap -Pn -T4 192.168.28.111 -p80
+  
+  --------------------------------------------------------------------------------------------------------------------------------------------
+  
+  
+  
+  
+
+    
+ 
+ 
+
+
+
+
+
