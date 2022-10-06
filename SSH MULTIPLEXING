@@ -40,11 +40,19 @@ ssh -O exit -S ~/.ssh/CM/gray user NLA
 
   ssh -M -S ~/.ssh/CM/gray -o "ControlPersist=10m" student@10.50.40.200 ( intial master to  gray ) 
   
+  
+  ssh -S ~/.ssh/CM/gray grayhost ( to connect to the grayhost ) 9 grayhost is  palceholder)
+  
   ssh -O forward -L2222:192.168.28.111:2222 -S ~/.ssh/CM/gray place   ( forward tunnel to 111 via the master socket gray) 
     
     
-  ssh -M -S ~/.ssh/CM/T1 -o "ControlPresist=10m" comrade@127.0.0.1 -p2222   ( connect to the port so you can set up a persist ) 
+  ssh -M -S ~/.ssh/CM/T1 -o "ControlPresist=10m" comrade@127.0.0.1 -p2222   ( connect to the port so you can set up a persist )
   ( should have a new master called T1 on your host )
+  
+  
+  
+  ssh -S ~/.ssh/CM/T1 grayhost ( to connect to the grayhost)
+  
   
   ssh -O forward -L3333:192.168.28.120:4242 -S ~/.ssh/CM/T1 place  ( forwad with the new master T1 ) 
   
