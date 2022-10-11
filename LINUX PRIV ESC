@@ -85,9 +85,7 @@ cat /etc/cron.d/popularity-contest
 
  ls /var/spool/cron/crontabs
 
-
-
-
   ls  /etc/cron 
-  
+
+
 
