@@ -181,6 +181,37 @@ get-localuser | get-member
 
 
 
+---------------------------------------------------
+
+
+
+$ ssh -M -S ~/.ssh/CM/gray -o "ControlPersist=10m" student@10.50.40.200
+ssh -O forward -L2222:192.168.28.100:2222 -S ~/.ssh/CM/gray place
+ssh -M -S ~/.ssh/CM/T1 -o "ControlPersist=10m" comrade@127.0.0.1 -p2222
+
+
+1st question
+eom map 
+
+2nd question
+find / -type f  -name "*inve*"  2>/dev/null
+
+
+ third one try to find T3 
+ 192.168.28.9
+ 
+ 
+  ssh -S ~/.ssh/CM/T1 grayhost -D 9050
+
+proxychains nmap -Pn -T4 192.168.28.9 -p 1-10000 --script=banner.nse 2>/dev/null
+
+proxychains nc 192.168.28.9 5985
+(HTTP)
+
+ 
+
+
+
 
 
 
