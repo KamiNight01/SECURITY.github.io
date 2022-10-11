@@ -1,0 +1,93 @@
+Privilege Escalation, Persistence & Covering Your Tracks
+Linux 
+
+
+Enumerating For Privilege Escalation
+What are the techniques and processes?
+
+Is there any particular order?
+
+Is there anything else you should be doing while on the box?
+
+SUDO
+What is SUDO?
+Why should you consider it for privilege escalation?
+What commands should you run?
+
+SUDO Gotchas!
+Commands that can access the contents of other files
+Commands that download files
+Commands that execute other commands (i.e. editors)
+Dangerous commands
+
+REFERENCES:
+GTFO Bins: https://gtfobins.github.io/gtfobins/tcpdump/
+sudoers manpage: https://linux.die.net/man/5/sudoers
+SUDO configuration: https://wiki.archlinux.org/index.php/sudo#Configuration
+Dangerous commands: https://www.tecmint.com/10-most-dangerous-commands-you-should-never-execute-on-linux/
+
+
+SUID/SGID
+What is SUID/SGID?
+----lets you run it as the owner of the file  / the group the file is under 
+to find it -----
+find / -type f -perm /4000 -ls 2>/dev/null 
+2000
+4000
+6000 for different perms 
+ go to gtfo bins and check if any will let you priv esc 
+ 
+Why should you consider it for privilege escalation?
+
+What commands should you run?
+
+
+
+Insecure Permissions
+CRON
+World-Writable Files and Directories
+Dot '.' in PATH
+
+CRON
+What is CRON?
+Why should you consider it for privilege escalation?
+What commands should you run?
+
+World-Writable Files and Folders
+Why should you consider it for privilege escalation?
+What commands should you run?
+
+ write to /tmp /var/tmp 
+  to scp file onto the target or get files from the target device.
+  
+  
+  
+  Dot '.' in PATH
+Why should you consider it for privilege escalation?
+What commands should you run?
+$PATH
+ to set a a new path PATH=.:$PATH
+  vim ls
+  
+  #!/bin/bash
+echo " This is not the real LS " 
+
+ Run ls 
+ 
+ CONTAB 
+ 
+  cat /etc/crontab
+  
+  ls /etc/cron.daily/
+   ls /etc/cron.d
+cat /etc/cron.d/popularity-contest 
+
+
+ ls /var/spool/cron/crontabs
+
+
+
+
+  ls  /etc/cron 
+  
+
