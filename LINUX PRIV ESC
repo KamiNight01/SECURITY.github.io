@@ -311,3 +311,14 @@ Rules filter out, and can use keyword or number
 <facility>.<priority>
 
 
+
+
+
+( GAIN ROOT ACCESS) 
+ #!/bin/bash
+
+echo "LEMME IN" 
+/bin/bash -i
+
+ 
+ 
