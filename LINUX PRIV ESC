@@ -1,3 +1,4 @@
+
 Privilege Escalation, Persistence & Covering Your Tracks
 Linux 
 
@@ -87,5 +88,226 @@ cat /etc/cron.d/popularity-contest
 
   ls  /etc/cron 
 
+--------------------------------------------------------------------------------------------------------------------------------------------------
+PERSISTANCE 
+
+Method of persitance 
+Adding or Hijacking a User Account
+Boot Process Persistence
+Cron Job
+Kernel Module Backdoors
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------##################################______________________________________######################______________________________
+
+
+It is best to test this in a development environment first because a minor error in a startup script may result in a major issue.
+
+For pure System V systems, we can create a service script from the skeleton via:
+
+cp /etc/init.d/skeleton /etc/init.d/<servicename>
+
+or if skeleton file doesn’t exist, copy an existing startup script that in the /etc/init.d directory that can be easily modified to the same directory with a new name that blends in and looks like a normal, typical startup script.
+
+cp /etc/init.d/<oldservicename> /etc/init.d/servicename>
+
+Edit the new service created to imbed the desired functionality such as a callout, etc.
+
+vi /etc/init.d/<servicename> # Used your desired editor
+
+Change the permissions on the new service script to make it executable.
+
+chmod +x <servicename>
+
+Ensure to use the appropriate path for the symbolic link (relative or absolute) to match the system in which you are on so that your runlevel script blends in with the others.
+
+Set the script to start when the system enters runlevels 2 through 5.
+
+chkconfig --add <servicename>
+
+or if the chkconfig command is not available, create a symbolic link to the appropriate directory. Assuming the default runlevel is 3, and the rc directory for runlevel 3 is /etc/rc3.d/ then run the command:
+
+cd /etc/rc3.d && ln -s ../init.d/servicename>
+
+Verify the creation of the service with:
+
+chkconfig --list | grep <servicename>
+
+<servicename>      0:off   1:off   2:on    3:on    4:on    5:on    6:off
+or if the chkconfig command is not available
+
+find -L /etc/rc*.d | grep <servicename>
+
+Start the service with:
+
+service <servicename> start
+
+OR
+
+/etc/init.d/<servicename> start
+
+----------------------------------------------------------------------##################+__________________###############___________________________
+COVERING YOUR TRACKS  /TRADECRAFT
+
+Plan
+Prior, after, before (Know the system!)
+What will happen if I do X (What logging?)
+Checks (Where are things?)
+Hide (File locations, names, times)
+When do you start covering your tracks?
+
+Artifacts
+What are they?
+
+System usage
+Where to work from on the remote system? Why?
+Are system resources important?
+
+NIX-ism
+First thing: unset HISTFILE
+Need to be aware of of init system in use
+SystemD, to name a few
+Determines what commands to use and logging structure
+
+
+Ways To Figure Out Init Type
+ls -latr /proc/1/exe
+stat /sbin/init
+man init
+init --version
+ps 1
+
+
+Auditing SystemV
+ausearch: Pulls from audit.log
+
+ausearch -p 22
+ausearch -m USER_LOGIN -sv no
+ausearch -ua edwards -ts yesterday -te now -i
+
+SystemD
+Utilzes journalctl`
+
+journalctl _TRANSPORT=audit
+journalctl _TRANSPORT=audit | grep 603
+
+
+
+Logs for Covering Tracks
+ can usually cat it out to see the content 
+Logs typically housed in /var/log & useful logs:
+
+auth.log/secure       Logins/authentications
+lastlog               Each users' last successful login time
+btmp                  Bad login attempts
+sulog                 Usage of SU command
+utmp                  Currently logged in users (W command)
+wtmp                  Permanent record on user on/off
+
+
+
+Working With Logs
+file /var/log/wtmp
+find /var/log -type f -mmin -10 2> /dev/null
+journalctl -f -u ssh
+journalctl -q SYSLOG_FACILITY=10 SYSLOG_FACILITY=4
+
+
+
+Reading Files
+cat /var/log/auth.log | egrep -v "opened|closed"
+awk '/opened/' /var/log/auth.log
+last OR lastb OR lastlog
+strings OR dd            # for data files
+more /var/log/syslog
+head/tail
+Control your output with pipes | and more
+
+
+
+
+Cleaning The Logs
+Before we start cleaning, save the INODE!
+Affect on the inode of using mv VS cp VS cat
+Know what we are removing (Entry times? IP? Whole file? Etc.)
+
+
+cat $HISTFILE
+echo "" > $HISTFILE
+
+Cleaning The Logs (Basic)
+Get rid of it
+rm -rf /var/log/...
+
+Clear It
+cat /dev/null > /var/log/...
+echo > /var/log/...
+
+
+Cleaning The Logs (Precise)
+Always work off a backup!
+GREP (Remove)
+
+egrep -v '10:49*| 15:15:15' auth.log > auth.log2; cat auth.log2 > auth.log; rm auth.log2 +
+
+SED (Replace)
+cp auth.log > auth.log2; sed -i 's/10.16.10.93/136.132.1.1/g' auth.log2; cat auth.log2 > auth.log +
+
+
+
+Timestomp (Nix)
+Access: updated when opened or used (grep, ls, cat, etc)
+Modify: update content of file or saved
+Change: file attribute change, file modified, moved, owner, permission
+
+
+Timestomp (Nix)
+Easy with Nix vs Windows (Native change of Access & Modify times)
+
+touch -c -t 201603051015 1.txt   # Explicit
+touch -r 3.txt 1.txt    # Reference
+****Changing the change time requires changing the system time than touch the file. Could cause serious issues!****
+
+Remote Logging
+Good? Bad? Both?
+
+
+Remote Logging
+Check the config!
+also check if it's running on the box 
+
+Identify server being shipped to!
+Identify which logs are being shipped
+[EMPHASIS]#Rsyslog? Need to be thorough!
+New version references multiple files for rules
+
+
+Rsyslog
+Newer Rsyslog references /etc/rsyslog.d/* for settings/rules
+Older version only uses /etc/rsyslog.conf`
+
+Find out
+grep "IncludeConfig" /etc/rsyslog.conf
+
+
+Reading Rsyslog
+Utilizes severity (priority) and facility levels
+Rules filter out, and can use keyword or number
+<facility>.<priority>
 
 
