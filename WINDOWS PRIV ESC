@@ -1,0 +1,60 @@
+Modes & Levels
+Kernel Mode vs User Mode
+Privileged vs Unprivileged
+
+
+Windows Access Control Model:
+
+1.Access Tokens
+Security Identifier (SID) associations and Token associations
+
+2.Security Descriptors
+DACL
+SACL
+ACEs
+
+DLL Search Order
+Executables check the following locations (in successive order):
+
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\KnownDLLs
+The directory the the Application was run from
+The directory specified in in the C+ function GetSystemDirectory()
+The directory specified in the C+ function GetWindowsDirectory()
+The current directory
+
+
+DLL Search Order
+DLL Hijacking is a technique in which an attacker abuses Window’s Dynamic-Link Library (DLL) Search Order to trick a program into running a custom DLL that executes malicious code.
+Dynamic-Link Libraries are libraries of additional functions for a program. They allow for a programmer to not have to recreate commonly used functions by making a program call them. The following steps are used to search for DLL’s when called by a program.
+The program checks the following registry location and will attempt to use the last known location of the DLL
+reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\KnownDLLs"
+If the DLL is not found the program will check the following locations, in order:
+The directory the the Application was run from
+The exact location on the hard drive where the program was executed from. Even locations such as C:\Users\Public\Downloads
+The directory specified in in the C+ function GetSystemDirectory()
+The returned location is C:\Windows\system32 even on 64 bit systems.
+The directory specified in the C+ function GetWindowsDirectory()
+The returned location should always be C:\Windows
+The current directory
+The current directory assuming the application was executed using its full path.
+
+
+LAST KNOWN DLL LOCATION
+reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\KnownDLLs"
+
+
+
+Windows Integrity Mechanism
+Integrity Levels
+UNTRUSTED
+Anonymous SID access tokens
+LOW
+Everyone SID access token (World)
+MEDIUM
+Authenticated Users
+HIGH
+Administrators
+SYSTEM
+System services (LocalSystem, LocalService, NetworkService)
+
+
