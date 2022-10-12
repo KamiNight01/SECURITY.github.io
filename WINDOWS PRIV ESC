@@ -60,9 +60,135 @@ SYSTEM
 System services (LocalSystem, LocalService, NetworkService)
 
 
+DEMO: Checking UAC Settings
+reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
+
+
+AutoElevate Executables
+Requested Execution Levels:
+
+asInvoker
+
+highestAvailable
+
+
+Scheduled Tasks & Services
+Items to evaluate include:
+
+
+Write Permissions
+Non-Standard Locations
+Unquoted Executable Paths
+Vulnerabilities in Executables
+Permissions to Run As SYSTEM
+
+
+Finding vulnerable Scheduled Tasks
+schtasks /query /fo LIST /v
+
+
+ Finding Vulnerable Services
+wmic service list full
+sc query
+
+
+Registry
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\
+Run
+RunOnce
+
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\
+Run
+RunOnce
+
+What are the differences?
+Do you need to blend in?
+
+System usage
+Where should you run commands from?
+Locally?
+Remote?
+Are system resources a important, and how can we check them?
+wmic
+net
+netstat
+
+Audit Logging
+Show all audit category settings
+auditpol /get /category:*
+What does the below command show?
+auditpol /get /category:* | findstr /i "success failure"
+
+mportant Microsoft Event IDs
+4624/4625
+Successful/failed login
+4720
+Account created
+4672
+Administrative user logged on
+7045
+Service created
+
+Event Logging
+Storage: c:\windows\system32\config\
+
+File-Type: .evtx/.evt
+
+wevtutil el
+wmic ntevent where "logfile="<LOGNAME>" list full
+Get-Eventlog -List
+
+Additional Logging
+Determine PS version (bunch of ways)
+reg query hklm\software\microsoft\powershell\3\powershellengine\
+
+powershell -command "$psversiontable"
+Determine if logging is set (PowerShell and WMIC)
+reg query [hklm or hkcu]\software\policies\microsoft\windows\powershell
+reg query hklm\software\microsoft\wbem\cimom \| findstr /i logging
+# 0 = no | 1 = errors | 2 = verbose
+WMIC Log Storage
+%systemroot%\system32\wbem\Logs\
+
+Manipulating Logs and Files
+Find Files and Alter File attributes
+forfiles /P c:\windows\system32 /S /D +05/14/2019
+wmic datafile where name='c:\\windows\\system32\\notepad.exe' get CreationDate, LastAccessed, LastModified
+copy /b filename.ext +,,
+$(Get-Item file.ext).lastaccesstime=$(date) |$(Get-Item test.txt).lastaccesstime=$(Get-Date "07/07/2004")
+
+Clear Event Logs (produces logging!):
+wevtutil clear-log Application
+Clear-Eventlog -Log Application, System
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+auditpol /get /category:*
+    # Basic: Shows all audit category setting
+
+auditpol /get /category:* |findstr /i "success failure"
+    # Show all audit category set for success, failure, or success and fail
+
+auditpol /list /subcategory:"detailed Tracking","DS Access"
+    # Displays sub policy's for "Detailed Tracking","DS Access" categories.
+
+auditpol /get /option:crashonauditfail
+    # Check options that effect the system as a whole when certain events occur. The example would cause the system to crash if auditing would become unable to log 
 
 
 
+
+CHECK FOR POWERSHELL LOGGGING/ POWERSHELL VERSION
+
+reg query [hklm or hkcu]\software\microsoft\powershell\1\powershellengine\
+    # Hive check to determine PowerShell verison and log settings
+
+reg query [hklm or hkcu]\software\microsoft\powershell\3\powershellengine\
+    # PowerShell hive check
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 The following commands can be used to idenitfy vulnerable tasks using CMD and PowerShell:
 
