@@ -58,3 +58,55 @@ SYSTEM
 System services (LocalSystem, LocalService, NetworkService)
 
 
+
+
+The following commands can be used to idenitfy vulnerable tasks using CMD and PowerShell:
+
+schtasks /query /fo LIST /v
+
+List all Tasks in List format
+
+schtasks /query /fo LIST /v | Select-String -Pattern "STRING OR REGEX PATTERN"
+
+Select-String can utilize regex to output only values that match
+
+schtasks /query /fo LIST /v | Select-String -Pattern "Task To Run" -CaseSensitive -Context 0,6
+
+Searches for Task To Run and outputs that line, along with the 6 lines following it in order to show the Run As User setting too.
+
+schtasks /query /fo LIST /v | Select-String -Pattern "Task To Run" -CaseSensitive |Select-String -Pattern "COM handler" -NotMatch
+
+Excludes results that we dont want to seein order to help narrow down vulnerable directory locations
+
+Open and view tasks from the Task Scheduler GUI Application
+
+Identify the following vulnerable Task:
+
+C:\Users\student\exercise_2\putty.exe
+
+Run: sigcheck c:\users\student\exercise_2\putty.exe
+
+Determines information we can use to research for vulnerabilities
+
+Run: icacls "c:\users\student\exercise_2"
+
+Check if the directory can be written to, as it is non-standard
+
+
+
+DEMO: DLL hijacking (Writable Path, Vulnerable Scheduled Task)
+Process Monitor
+
+Run: procmon /AcceptEula
+
+Run: C:\Users\student\exercise_2\putty.exe
+
+Configure the following filters by pressing CTRL + L to open the filter menu:
+
+Process Name contains putty.exe
+
+Path contains .dll
+
+Result is NAME NOT FOUND
+
+
